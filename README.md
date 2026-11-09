@@ -1,5 +1,7 @@
 # OSSE_CrossModel_Analysis
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24092597.svg)](https://doi.org/10.5281/zenodo.24092597)
+
 Cross-model analysis and figure scripts for the AI-weather-model truth-insertion OSSE study,
 released with the manuscript *An AI-Based OSSE Framework to Evaluate Learned Physical Consistency: A Multi-Model Study Using FourCastNet, Aurora, Prithvi WxC, and GraphCast* (Diggikar, Halem, and Raman) (submitted to AGU *JGR: Machine Learning and
 Computation*). They compare the four models whose experiment code is released separately:
@@ -51,4 +53,5 @@ explains how to regenerate figures from the cached CSV results.
 MIT (`LICENSE`).
 
 ## Citation
-See `CITATION.cff`.
+Diggikar, Y., Halem, M., & Raman, A. (2026). *OSSE_CrossModel_Analysis* (Version 1.0.0) [Software]. Zenodo. https://doi.org/10.5281/zenodo.24092598
+(All versions: https://doi.org/10.5281/zenodo.24092597.) See also `CITATION.cff`.
