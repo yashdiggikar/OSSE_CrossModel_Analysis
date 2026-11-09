@@ -1,0 +1,401 @@
+================================================================================
+PHYSICAL INTERPRETATION — TEMPERATURE INSERTION BY CLOUD REGIME
+Cross-variable RMSE response (U500, V500, Z500, Q700) stratified by ERA5
+total-cloud-cover (TCC) regime
+Models: Aurora, FourCastNet (FCN), Prithvi-WxC, GraphCast
+Source plots: fig5_75_t_ins_rmse_improvement_by_regime.png,
+  fig5_76_t_ins_rmse_timeseries_by_regime.png (one copy in each model folder)
+Prepared from table_t_ins_cloud_regime_summary.csv and the per-model
+  intermediates/*_t_ins_regime_rmse.csv caches.
+================================================================================
+
+0. EXPERIMENT DESIGN AND DATA CAVEATS
+--------------------------------------------------------------------------------
+Temperature is inserted (forced to ERA5 truth) and the response of three
+wind/mass cross-variables (U500, V500, Z500) plus 700 hPa moisture (Q700;
+specific humidity for Aurora/Prithvi/GraphCast, relative humidity % for FCN)
+is measured, stratified into four ERA5 total-cloud-cover (TCC) regimes:
+  Clear   TCC < 10%       (radiatively/dynamically quiescent, subsidence-prone)
+  Cirrus  10% <= TCC < 40% (thin/high cloud, weak forcing)
+  Mixed   40% <= TCC < 70% (transitional, often frontal/baroclinic)
+  Opaque  TCC >= 70%       (deep, organised cloud — frontal/convective systems)
+Two phases are compared: Adjustment (day 30-40) and Mature (day 40-60).
+
+As in the companion latitude-band report (common/lats_FINAL/PHYSICAL_ANALYSIS.txt)
+and the TUV report (common/tuv_final/PHYSICAL_ANALYSIS.txt), Aurora and
+GraphCast show real, non-zero Adjustment-Phase responses (insertion from the
+initial condition), while this dataset's FCN and Prithvi numbers are also
+non-trivial in the Adjustment Phase here (unlike the zonal lats_FINAL
+dataset) — the cloud-regime pipeline applies the same single 60-day run to
+all models and reads out the existing trajectories, so all four models'
+Adjustment-Phase numbers are meaningful here. Mature-phase numbers remain the
+primary basis for cross-model comparison since they reflect a longer,
+better-equilibrated exposure to the inserted field.
+
+
+1. PHYSICAL INTERPRETATION OF MODEL BEHAVIOUR
+--------------------------------------------------------------------------------
+1.1 A cloud regime is, physically, a proxy for the dominant local dynamical
+    regime — not just a radiative label.
+
+Clear-sky columns are typically associated with subsidence (descending,
+adiabatically warming/drying air under high pressure — subtropical highs,
+post-frontal cold-air advection); Opaque columns are typically associated
+with active ascent — frontal overrunning, baroclinic lifting, organised
+convection. Mixed and Cirrus regimes sit on the transition. Because of this,
+a model's skill profile across cloud regimes is, in effect, a second,
+independent probe of the same baroclinic-activity axis already identified
+in the companion latitude-band report (Section 1.2 there), obtained from
+instantaneous local cloud state rather than from zonal latitude bands.
+This is consistent with the literature finding that cloud cover is not just
+a passive label but actively conditions forecast-error statistics — Tmax/Tmin
+temperature-forecast errors are measurably larger when cloud cover is below
+~40% than when skies are overcast (i.e. error characteristics genuinely
+differ by regime), and clouds are recognised as "a major source of forecast
+error" precisely because they index the predictability of moist atmospheric
+flow (Frontiers in Earth Science, 2023; cited in Section 5/References).
+
+1.2 Aurora and FCN: skill that tracks the regime's dynamical activity, not
+    just its cloud amount.
+
+FCN's Z500 mature-phase improvement from T-insertion is lowest in Clear
+(21.0%), rises through Cirrus (32.1%) and peaks in Mixed (37.6%), then falls
+back in Opaque (28.1%) — an inverted-U with its peak in the regime most
+associated with active frontal/baroclinic lifting (Mixed), not in the most
+heavily clouded regime. The same inverted-U, peaking at Mixed, appears in
+FCN's U500 (18.1% -> 20.8% -> 25.0% -> 19.5%). This is the cloud-regime
+analogue of the storm-track-aligned positive-synergy bands found in the
+companion TUV spatial maps (Section 2.1 there): temperature information is
+most dynamically informative precisely where baroclinic/frontal activity (and
+hence the thermal-wind coupling between temperature and the rotational flow)
+is most active, and somewhat less informative in either the most quiescent
+(Clear) or the most saturated/convectively-dominated (Opaque) regimes, where
+non-baroclinic processes (radiative cooling, latent-heat release) compete
+with or dominate the baroclinic signal.
+
+Aurora's profile is flatter and uniformly strong (Z500 mature: 65.5%, 62.7%,
+59.9%, 55.9% — a mild monotonic decline from Clear to Opaque, rather than
+FCN's inverted-U), indicating Aurora's hydrostatic temperature-to-geopotential
+coupling (Section 1.4 of the companion lats_FINAL report) is robust across
+the whole dynamical spectrum, with only a modest erosion in the most actively
+clouded/convective regime, where latent-heat release and condensation
+introduce mass-field structure that is not simply diagnosable from the dry
+hydrostatic relation alone.
+
+1.3 Prithvi: a solid, cloud-regime-independent Z500 pathway (second only to
+    Aurora's, not the strongest), and a moisture pathway that runs in the
+    OPPOSITE regime direction from Aurora's.
+
+Prithvi's Z500 improvement from T-insertion is large and nearly flat across
+all four regimes (49.2% Clear, 48.5% Cirrus, 51.6% Mixed, 51.9% Opaque — a
+narrow ~3-point spread, the flattest Z500 profile of any model in this
+report series). This reconfirms, independently, the hydrostatic/thermodynamic
+coupling already identified for Prithvi in the companion lats_FINAL and
+tuv_final reports, and shows that pathway is essentially insensitive to the
+local cloud/dynamical regime — though its magnitude here is second to
+Aurora's (55.9-65.5% mature across the same four regimes, Section 1.2), not
+the largest of the four models as an earlier version of this report stated
+(see Section 4 for the corrected model ranking).
+
+Prithvi's moisture (Q700) pathway tells the opposite regional story from
+Aurora's: Aurora's Q700 improvement is highest in Clear (21.4%) and lowest in
+Cirrus (9.4%); Prithvi's Q700 improvement is lowest (and actually negative)
+in Clear (-11.8%), crosses to near-zero in Cirrus (-0.7%), and turns positive
+through Mixed (8.2%) to Opaque (14.0%) — the same monotonic rise toward the
+most heavily clouded regime as before, just starting from a negative
+baseline in the two clearest regimes rather than a small positive one.
+Physically, this means Aurora's temperature-to-moisture coupling is most
+useful in radiatively-controlled, subsidence-dominated (Clear) conditions,
+where the moisture field is closely tied to the (well-captured) thermal/
+hydrostatic state, while Prithvi's temperature-to-moisture coupling is not
+just weaker but actively harmful in those same Clear/Cirrus conditions, and
+only becomes net-useful in actively clouded conditions, where condensation
+and latent-heat release create the strongest local temperature-moisture
+covariance for its reconstruction-style training objective (Section 5) to
+exploit. Two architecturally different models therefore extract the same
+kind of cross-variable information from opposite ends of the cloud-regime
+spectrum — a genuinely informative contrast that would be invisible without
+this regime-resolved breakdown — but Prithvi's version of that contrast is
+now known to dip negative at one end, not just weaker.
+
+1.3b Prithvi's wind response (U500, V500) is modest-to-mixed across every
+     regime, including outright negative for U500 in Clear.
+
+Prithvi's U500 mature-phase improvement is small and non-monotonic across
+regimes (-4.8% Clear, 5.9% Cirrus, 9.3% Mixed, 3.2% Opaque) — the only model
+in this dataset whose wind response goes negative in any regime. V500 is
+more reliably positive but still modest (13.5% Clear, 12.8% Cirrus, 9.1%
+Mixed, 6.3% Opaque). Both wind components are well below Aurora's (U500
+40.9-44.6%, V500 20.4-27.5%) or even FCN's (U500 18.1-25.0%) in every
+regime, continuing the wind/momentum weak point documented independently in
+the companion lats_FINAL and tuv_final reports.
+
+1.4 GraphCast: a temporal sign reversal, not a regional one, in this dataset.
+
+In the zonal lats_FINAL dataset, GraphCast-S's main pathology was a sharp
+*regional* (equatorial) sign flip. In this cloud-regime dataset, GraphCast's
+main pathology is a *temporal* sign flip: its Z500 Adjustment-Phase response
+to T-insertion is positive in every regime (25.9%, 8.2%, 11.9%, 14.1%), but
+by the Mature Phase it has gone negative in three of the four regimes
+(-4.4% Clear, -8.5% Cirrus, -3.5% Mixed, only +1.5% Opaque). The insertion
+helps GraphCast's geopotential field in the short term and then actively
+degrades it after continued exposure, regardless of which cloud regime is
+examined. This is consistent with — and reinforced by — the same pattern
+found independently in the companion cloud2 (UV-insertion) and terrain2
+analyses (see their Section 1 and Section 4): GraphCast's short-term gains
+from insertion are not dynamically "locked in" by its own forward evolution,
+and tend to decay or reverse the longer the forecast continues.
+
+1.5 FCN's moisture failure is now confirmed a THIRD independent way.
+
+FCN's Q700 mature-phase "improvement" from T-insertion is negative in every
+single cloud regime (-6.0% Clear, -7.7% Cirrus, -0.01% Mixed, -2.7% Opaque) —
+the same sign of failure already identified for FCN's moisture field in the
+companion TUV report (Section 1.5 there: T-only insertion degraded FCN's
+Q850 by -7.0% in the domain mean) and now reproduced here across every cloud
+regime in an entirely different, independently-constructed dataset (700 hPa
+RH-conditioned-on-cloud-regime rather than domain-mean Q850). Three
+independent analyses (TUV domain-mean, this cloud-regime breakdown, and the
+terrain breakdown below) all show the same result: FCN's smooth, globally
+spectral temperature correction does not translate into improved moisture,
+and frequently makes it slightly worse, regardless of region, terrain, or
+cloud state. This elevates the finding from "FCN's moisture is a weak point"
+to "FCN's moisture is essentially un-helped, and often mildly harmed, by
+temperature information specifically" — a structural, not incidental,
+property of this model under this experiment.
+
+
+2. REGIONAL AND SPATIAL ANALYSIS
+--------------------------------------------------------------------------------
+This dataset stratifies by instantaneous local cloud state rather than by
+fixed geography, so it cannot directly answer "which continent/ocean basin"
+questions (those are addressed in the companion TUV spatial-synergy-map
+report and, for fixed terrain classes, in the terrain/terrain2 reports below).
+What it adds that a fixed-geography breakdown cannot is a *flow-regime*
+decomposition: because cloud regime correlates strongly with frontal/
+baroclinic activity vs quiescent subsidence (Section 1.1), the cloud-regime
+results in Section 1 should be read as the flow-regime analogue of the
+storm-track-vs-tropics spatial split documented in the TUV synergy maps —
+the same physical contrast (active baroclinic dynamics vs quiescent/
+convective dynamics), viewed through cloud state rather than through
+latitude or fixed geography. The qualitative agreement between the two
+independent decompositions (FCN peaking in the most dynamically active
+regime/zone in both cases; Aurora staying comparatively flat/uniform in
+both) is itself evidence that these are not decomposition-specific artefacts
+but a genuine property of how each model's temperature-insertion benefit is
+organised by the real atmosphere's dynamical activity.
+
+
+3. EXPERIMENT-LEVEL INTERPRETATION
+--------------------------------------------------------------------------------
+3.1 What temperature-only insertion reveals, regime by regime.
+
+Temperature insertion's benefit to the wind field (U500, V500) is positive
+for every model and every regime except a few small FCN exceptions at the
+Adjustment Phase (e.g. FCN V500 Clear adj = -0.72%) — i.e. the "wind is hard
+to recover from temperature alone" asymmetry from the companion lats_FINAL
+report (Section 1.1 there) holds regime-by-regime as well as latitude-by-
+latitude: U500/V500 mature-phase gains here (5-46%) are consistently smaller
+than the corresponding Z500 gains (20-95%) for every model in every regime.
+
+3.2 Single-variable insertion helping one field while harming another.
+
+The clearest case in this dataset is FCN: temperature insertion improves
+FCN's Z500 (21-38% mature, every regime) while simultaneously degrading its
+Q700 (-7.7% to -0.01% mature, every regime). The dynamical reading is that
+FCN's smooth, large-scale spectral correction to temperature is well matched
+to the smooth, large-scale geopotential field but is, if anything, slightly
+counter-productive for the small-scale, sharply-varying, latent-heat-coupled
+moisture field — the same mismatch documented in the companion TUV report
+(Section 1.5) and discussed architecturally in Section 5 below.
+
+3.3 Error propagation from the inserted variable into others.
+
+Because temperature is the only variable forced to truth here, all of
+Sections 1-2 are, by construction, measuring propagation. The cloud-regime
+breakdown shows this propagation is itself regime-dependent and, for two of
+the four models (FCN, GraphCast), can become regime-and-phase-dependent in
+sign — i.e. propagation is not a fixed multiplier on the inserted variable's
+accuracy but is conditioned on the local dynamical/cloud state, the forecast
+phase, or both.
+
+
+4. MODEL-BY-MODEL COMPARISON
+--------------------------------------------------------------------------------
+AURORA: best regions/regimes — uniformly strong across all cloud regimes for
+Z500 (56-65% mature) and U500 (41-45% mature), with only a mild decline
+toward the most heavily clouded (Opaque) regime; Q700 best in Clear (21.4%).
+Weakest — V500 recovery is comparatively modest everywhere (20-28% mature)
+and dips specifically in the transitional Cirrus/Mixed regimes (22.3%,
+20.4%), suggesting the rotational wind component is hardest to recover from
+temperature alone exactly in the regimes where the flow is itself
+transitioning between balance states. Global vs local consistency: the
+flattest, most regime-independent profile of the four models — evidence of
+a genuinely general (not regime-specific) hydrostatic/thermal-wind coupling.
+
+FOURCASTNET: best — a clean inverted-U peaking in the Mixed (frontal/
+baroclinically active) regime for both Z500 (37.6%) and U500 (25.0%),
+tracking dynamical activity rather than cloud amount per se (Section 1.2).
+Weakest — moisture (Q700) is negative in every regime, the clearest and most
+reproducible failure mode in this entire four-directory study (Section 1.5).
+Global vs local consistency: smooth, monotonic-shaped regime dependence with
+no sign flips in the wind/mass fields — consistent with a global, low-order
+spectral representation (Section 5) that struggles specifically with the one
+field (moisture) that is least smooth.
+
+PRITHVI-WxC: best — the most regime-independent Z500 result of any model
+(49-52% mature, every regime, a ~3-point spread — narrower than Aurora's
+~10-point spread, though Aurora's magnitude is higher, see AURORA above);
+Q700 improves specifically in the more actively clouded regimes (Section
+1.3), though it is net-negative in Clear/Cirrus. Weakest — U500 and V500
+are both modest across every regime (Section 1.3b), with U500 the only
+cross-variable/model combination in this dataset that goes negative (Clear,
+-4.8%) — continuing the wind/momentum weak point documented independently
+in the companion lats_FINAL and tuv_final reports. Global vs local
+consistency: strong local/vertical (thermodynamic) consistency,
+regime-independent in shape though not the largest in magnitude; weaker
+non-local (rotational) consistency, as established throughout this report
+series.
+
+GRAPHCAST: best — substantial short-term (Adjustment-Phase) gains in every
+regime for every variable. Weakest — a systematic Adjustment-to-Mature
+collapse for Z500 (Section 1.4), turning a positive short-term benefit into
+a near-zero or negative one by the Mature Phase in three of four regimes;
+this is the dataset's clearest illustration of a model whose response to
+insertion is not durably absorbed into its own forward dynamics. Global vs
+local consistency: the least temporally consistent of the four models —
+its spatial/regime organisation looks reasonable at short lead time but does
+not hold up as the forecast matures.
+
+
+5. ARCHITECTURE AND TRAINING INTERPRETATION
+--------------------------------------------------------------------------------
+The cloud-regime results reinforce, with an independent flow-regime axis,
+the architecture-linked tendencies already identified in the companion
+lats_FINAL and tuv_final reports.
+
+FCN's Adaptive Fourier Neural Operator (Pathak et al., 2022) represents the
+field as a truncated set of global spectral (Fourier) modes. This is well
+matched to representing a smooth, low-wavenumber field like Z500 (hence the
+clean, monotonic-with-dynamical-activity inverted-U for FCN's Z500/U500
+across cloud regimes) but poorly matched to a field like moisture, whose
+true structure is dominated by sharp, small-scale, latent-heat-coupled
+gradients that a low-order spectral truncation will tend to smooth away or
+distort — consistent with FCN's reproducible Q700 degradation in every
+single cloud regime tested. The broader NWP literature independently
+supports treating cloud-conditioned fields as a distinct error regime:
+cloud cover materially changes the statistics of temperature-forecast error
+(larger Tmax/Tmin errors below ~40% cloud cover than under overcast skies;
+Frontiers in Earth Science, 2023) and clouds are recognised as a leading
+source of forecast error specifically because they index the predictability
+of moist atmospheric flow — exactly the regime sensitivity this experiment
+isolates for FCN's moisture pathway.
+
+Aurora's 3D Swin-Transformer encoder-processor-decoder with multi-source,
+multi-stage (including rollout-aware) pretraining (Bodnar et al., 2024/2025)
+plausibly explains its flat, regime-independent strength: a foundation model
+exposed to many heterogeneous training distributions and explicitly
+fine-tuned for long rollouts would be expected to generalise more uniformly
+across the different *local* dynamical/cloud regimes a single grid point can
+pass through over a forecast, rather than specialising sharply to one regime
+at the expense of another.
+
+Prithvi-WxC's combination of masked-reconstruction and forecasting
+pretraining on a patch-embedded 2D Vision Transformer (Schmude et al., 2024)
+again explains the now-repeated pattern of strong local/instantaneous
+thermodynamic coupling (Z500 from temperature) and weak non-local rotational
+coupling (V500): a reconstruction objective rewards learning the
+co-located, same-instant relationship between temperature and geopotential
+very well, while providing comparatively little explicit pressure to learn
+the spatially-extended, balance-constrained relationship between temperature
+and the rotational wind field — and that asymmetry persists whether the
+diagnostic axis used to expose it is latitude (lats_FINAL), domain mean
+(tuv_final), or cloud regime (here).
+
+GraphCast's icosahedral multi-mesh graph-neural-network architecture (Lam
+et al., 2023) processes information through repeated local message-passing
+steps across a fixed mesh hierarchy. A plausible explanation for its
+Adjustment-to-Mature collapse (Section 1.4) is that the inserted information
+is well used by the *encoder/processor* at the time of insertion (producing
+a good Adjustment-Phase state) but is not "re-derived" or reinforced by the
+model's own autoregressive evolution in the way Aurora's and FCN's
+corrections evidently are — i.e. the correction is not anchored to a
+self-sustaining internal balance, so it decays back toward GraphCast's own
+intrinsic (less accurate) attractor as the rollout continues. This is
+consistent with, though independent from, the equatorial breakdown documented
+for GraphCast-S in the companion lats_FINAL report: both findings point to a
+model whose corrections do not stay dynamically "locked in" outside the
+specific regimes its message-passing mesh represents best.
+
+
+6. FINAL SCIENTIFIC CONCLUSIONS
+--------------------------------------------------------------------------------
+(1) Cloud regime acts as a genuine, independent probe of the same
+baroclinic-activity axis already identified by latitude in the companion
+report — a model's response to temperature insertion is organised by local
+dynamical activity, not simply by cloud amount.
+
+(2) Most dynamically consistent model: Aurora, by virtue of its flat,
+regime-independent strength across nearly all variables — the clearest sign
+of a generalised, rather than regime-specialised, learned balance.
+
+(3) Model benefiting most from insertion: Aurora, for the broadest,
+strongest cross-variable benefit (Z500 56-65%, U500 41-45% mature, every
+regime); Prithvi is a close second on Z500 specifically (49-52% mature,
+the flattest regime profile of the four models) but its benefit is
+narrowest overall (both wind components remain modest-to-negative in every
+regime, Section 1.3b).
+
+(4) Most important variable for correcting forecast evolution in this
+dataset: temperature's effect on geopotential (hydrostatic pathway) is
+strong and broadly regime-independent for three of four models; its effect
+on the rotational wind field is weaker and more regime-sensitive for all
+models, reconfirming the wind/mass asymmetry from the companion reports.
+
+(5) Where the models fail physically: FCN's moisture field is reproducibly
+and specifically harmed by temperature-only insertion in every cloud regime
+tested — the single most consistent failure mode identified anywhere in
+this four-part study; GraphCast's geopotential gains are not durable past
+the Adjustment Phase in most regimes.
+
+(6) Main takeaways for a paper/report: (a) cloud-regime stratification is a
+cheap, physically motivated way to test whether a model's cross-variable
+skill is organised by dynamical activity (it is, for FCN and Aurora) or is
+largely regime-blind (Prithvi's Z500 pathway); (b) two structurally
+different foundation models (Aurora, Prithvi) can extract the same kind of
+useful temperature-moisture covariance from opposite ends of the cloud
+spectrum, which is only visible with a regime-resolved analysis; and (c) a
+model's Adjustment-Phase response to insertion is not a reliable predictor
+of its Mature-Phase response (GraphCast), so insertion-based diagnostics of
+AI weather models should always be evaluated across multiple forecast
+phases, not just immediately after the perturbation is applied.
+
+
+REFERENCES
+--------------------------------------------------------------------------------
+Charney, J.G. (1947/1948), foundational quasi-geostrophic theory; see also
+  "The Emergence of Quasi-Geostrophic Theory" (Springer).
+Arnold, C.P., and C.H. Dey (1986), "Observing-Systems Simulation Experiments:
+  Past, Present, and Future," Bull. Amer. Meteor. Soc.
+Masutani, M., et al. (2010), "Observing system simulation experiments at the
+  National Centers for Environmental Prediction," J. Geophys. Res., 115.
+Pathak, J., et al. (2022), "FourCastNet: A Global Data-driven High-resolution
+  Weather Model using Adaptive Fourier Neural Operators," arXiv:2202.11214.
+Bodnar, C., et al. (2024/2025), "A Foundation Model for the Earth System,"
+  Nature; arXiv:2405.13063.
+Schmude, J., et al. (2024), "Prithvi WxC: Foundation Model for Weather and
+  Climate," arXiv:2409.13598.
+Lam, R., et al. (2023), "GraphCast: Learning skillful medium-range global
+  weather forecasting," Science; arXiv:2212.12794.
+Charlton-Perez, A.J., et al. (2024), "Do AI models produce better weather
+  forecasts than physics-based models? A quantitative evaluation case study
+  of Storm Ciaran," npj Climate and Atmospheric Science; arXiv:2312.02658.
+"Correction method by introducing cloud cover forecast factor in model
+  temperature forecast," Frontiers in Earth Science (2023) — documents
+  larger Tmax/Tmin forecast errors below ~40% cloud cover than under
+  overcast skies, motivating cloud regime as a genuine error-stratification
+  axis.
+See also companion analyses: common/lats_FINAL/PHYSICAL_ANALYSIS.txt
+  (latitude-band/slice insertion) and common/tuv_final/PHYSICAL_ANALYSIS.txt
+  (T+U+V combined insertion and spatial synergy maps).
+================================================================================

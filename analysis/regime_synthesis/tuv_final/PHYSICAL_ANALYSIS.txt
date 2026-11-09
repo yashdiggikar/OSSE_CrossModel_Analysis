@@ -1,0 +1,429 @@
+================================================================================
+PHYSICAL INTERPRETATION OF T+U+V (TUV) COMBINED-INSERTION EXPERIMENTS
+RMSE time series, spatial synergy maps, and synergy bar chart
+Models: FourCastNet (FCN), Aurora, Prithvi-WxC
+Source plots: {Model}_Z500_RMSE_timeseries.png, {Model}_Q850_RMSE_timeseries.png,
+  fig5_27_spatial_synergy_maps_z500_q850.png, fig5_28_synergy_bar_chart_z500_q850.png
+Prepared from common/tuv_plots/cache/{model}_{ctrl,tins,uins,tuv}_rmse.csv and
+  the *_synergy_*.npy spatial fields.
+================================================================================
+
+0. EXPERIMENT DESIGN
+--------------------------------------------------------------------------------
+"Synergy" is defined as the mature-phase (days 40-60) percentage RMSE
+improvement from the COMBINED T+U+V insertion, minus the BETTER of the two
+single-variable insertions (temperature-only, T-Ins; wind-only, UV-Ins):
+
+   Synergy = improvement(T+UV) - max( improvement(T-only), improvement(UV-only) )
+
+Synergy > 0 means the two insertions are complementary (combining them buys
+more than the best single variable alone, i.e. they correct different,
+non-overlapping sources of error). Synergy < 0 means they are partially
+redundant or actively interfering (combining them buys less than the better
+single-variable insertion alone, i.e. the second piece of information adds
+noise/imbalance rather than independent correction). This is evaluated for
+two target fields: Z500 (a directly forced/observed dynamical field) and
+Q850 (specific/relative humidity at 850 hPa — a field that is NOT inserted in
+any of these three experiments, so its response is a pure diagnostic of
+cross-variable, moisture-dynamics coupling).
+
+The same caveat documented in the companion lats_FINAL report applies here:
+the TUV (combined) insertion shows ~0% improvement in the days-0-30 window for
+every model, indicating it is implemented as a day-30 restart-type
+perturbation; only the mature-phase (post day-30/40) numbers are physically
+interpretable as a measure of combined-insertion skill, and that is the
+convention used throughout this report and in the source figures.
+
+
+1. PHYSICAL INTERPRETATION OF MODEL BEHAVIOUR
+--------------------------------------------------------------------------------
+1.1 Quantitative synergy table (mature phase, days 40-60; matches fig5_28):
+
+  Z500:           i(T-only)   i(UV-only)   i(T+UV)   Synergy
+    FCN              35.2%        83.1%       94.7%    +11.6 pts
+    Aurora           59.5%        88.3%       81.3%     -7.0 pts
+    Prithvi          49.8%         4.1%       51.9%     +2.1 pts
+
+  Q850:           i(T-only)   i(UV-only)   i(T+UV)   Synergy
+    FCN              -7.0%        38.6%       41.1%     +2.5 pts
+    Aurora           26.0%        38.6%       49.0%    +11.4 pts
+    Prithvi          17.8%         0.3%       24.3%     +6.6 pts
+
+1.2 The wind-dominates-mass relationship reappears, independently, in the
+    domain-mean diagnostics.
+
+For Z500, wind-only insertion is dramatically more effective than
+temperature-only insertion for FCN (83.1% vs 35.2%) and Aurora (88.3% vs
+59.5%) — an independent, global-mean confirmation of the geostrophic
+wind->mass asymmetry already identified region-by-region in the companion
+lats_FINAL report (Section 1.1 there). Prithvi is the conspicuous exception
+and shows the *opposite* ranking (T-only 49.8% vs UV-only only 4.1%) — again
+independently reproducing, from a completely different experiment and
+dataset, the same Prithvi-specific weak wind<->mass coupling identified in
+the latitude-band analysis. This cross-validation across two independently
+constructed experiments (zonal/latitudinal insertion vs domain-mean TUV
+insertion) makes the conclusion about Prithvi's selective wind/momentum
+weakness considerably more robust than either result would be alone.
+
+1.3 Redundancy vs complementarity: a geostrophic-adjustment interpretation of
+    negative synergy.
+
+Aurora is the only model with negative synergy for Z500 (-7.0 pts): adding
+temperature on top of an already very strong wind-only constraint (88.3%)
+*reduces* skill relative to wind alone (81.3% < 88.3%). The likely mechanism
+is that Aurora's wind field already constrains Z500 through (its learned
+analogue of) the geostrophic relation almost as tightly as is achievable, so
+the additional temperature information is largely redundant; because the
+two corrections are not generated through a literally consistent assimilation
+update, the small residual disagreement between the wind-implied Z and the
+temperature-implied Z (via hydrostatic balance) introduces a mild internal
+inconsistency that costs a little skill rather than adding any. This is
+analogous to over-constraining a balanced system in classical geostrophic
+adjustment theory: a perturbation that nudges an already-near-balanced state
+along a second, slightly inconsistent direction does not improve the balance,
+it disturbs it. FCN and Prithvi, by contrast, both have much weaker
+single-variable constraints on Z500 to start with (FCN's temperature pathway
+is weak at 35.2%; Prithvi's wind pathway is weak at 4.1%), leaving substantial
+*independent* information in the variable that is otherwise under-used, which
+is why combining both produces a clearly positive synergy for them (+11.6 and
++2.1 pts respectively).
+
+1.4 Moisture (Q850) tells a different, and uniformly positive, story.
+
+Unlike Z500, every model shows POSITIVE synergy for Q850 (FCN +2.5, Aurora
++11.4, Prithvi +6.6). Physically, near-surface/lower-tropospheric humidity
+depends jointly and essentially irreducibly on both temperature (through the
+Clausius-Clapeyron control of saturation specific humidity) and on the wind
+field (through moisture advection and convergence/divergence). Because Q850
+is never itself inserted, it is a clean diagnostic of how much of its error
+budget is thermodynamic vs dynamical/advective in origin; the universally
+positive synergy indicates that, for all three models and unlike Z500's
+single dominant (geostrophic) pathway, moisture genuinely needs *both* pieces
+of information simultaneously to be corrected — there is no analogue of
+Aurora's "redundant wind-only is already enough" shortcut for moisture in any
+of the three models.
+
+1.5 A striking single-model anomaly: FCN's temperature-only insertion makes
+    moisture worse.
+
+FCN is the only model/variable combination in this entire dataset where a
+single-variable insertion produces a *negative* mature-phase improvement
+relative to Control: T-only insertion degrades FCN's Q850 RMSE by -7.0%.
+Because moisture saturation is an exponential (Clausius-Clapeyron) function
+of temperature, a globally smooth, spectrally band-limited correction to
+temperature (consistent with FCN's Adaptive-Fourier-Neural-Operator
+architecture, see Section 5) can locally imply an unrealistically smoothed
+saturation/condensation response, plausibly amplifying small-scale moisture
+error rather than damping it, even though the same smooth correction is very
+beneficial for the large-scale, smooth Z500 field (FCN's Z500 response to
+T-only is a healthy +35.2%, by contrast). This is a clean within-model
+illustration of how a single architecture/inductive bias can help a smooth,
+large-scale field while quietly hurting a sharp, highly nonlinear one.
+
+
+2. REGIONAL AND SPATIAL ANALYSIS (fig5_27 spatial synergy maps)
+--------------------------------------------------------------------------------
+The spatial synergy maps add geographic detail the domain-mean numbers in
+Section 1 cannot show, and in every model the geographic standard deviation
+of local synergy (12.8-176.8%) is far larger than the domain mean (1.1 to
+-26.7%) — i.e. strongly positive and strongly negative synergy regions
+coexist and partially cancel in the global mean. This is itself an important
+methodological point: a single domain-averaged synergy number, as used for
+the bar chart in Section 1, can mask wildly different regional behaviour and
+should always be interpreted alongside the spatial field.
+
+2.1 FCN — Z500: a clean midlatitude-storm-track vs tropical-ocean split.
+Positive (red) synergy forms broad, continuous bands closely tracking the
+climatological midlatitude storm tracks of both hemispheres (North Pacific,
+North Atlantic into Europe, and a band over the Southern Ocean near 40-60S),
+while negative (blue) synergy is concentrated almost entirely within the
+tropical belt (equatorial Pacific, Atlantic, Indian Ocean, parts of
+equatorial Africa/South America). This is the spatial fingerprint of exactly
+the same Rossby-number argument used throughout the companion lats_FINAL
+report: combined T+UV insertion adds genuine value specifically where
+baroclinic, geostrophically-organised eddy dynamics dominates (storm tracks),
+and is neutral-to-harmful where convective, non-geostrophic tropical
+dynamics dominates.
+
+2.2 Aurora — Z500: an oceans-negative, deserts-positive split.
+Aurora's Z500 synergy is negative (anti-synergy) over almost the entire ocean
+surface and most of the globe, consistent with the strongly negative global
+mean (-26.7%) discussed in 1.3 — wind-only information is already close to
+sufficient almost everywhere. The exceptions are striking and geographically
+specific: clear positive-synergy patches over the Sahara/North Africa and
+the Mediterranean rim, over Southern Africa, and over parts of the Andes/
+South American interior — i.e., specifically over the subtropical desert
+high-pressure systems. These quasi-stationary subtropical highs are
+substantially thermally/radiatively forced (descending, adiabatically
+warmed air, weak transient eddy activity) rather than being primarily driven
+by transient baroclinic wave dynamics; in such regions, temperature carries
+genuinely independent information that the wind field alone, however well it
+constrains the more dynamically-active midlatitudes, does not capture. This
+is a physically coherent, non-trivial regional signal: Aurora's synergy field
+is effectively a map of "where is the local circulation NOT already encoded
+by the wind field," and that map picks out exactly the regions where the
+real atmosphere's circulation is least eddy/rotational and most
+radiative/thermal in origin.
+
+2.3 Prithvi — Z500: patchy, blocky, less large-scale-organised.
+Prithvi's Z500 synergy field is visually far less smooth than FCN's or
+Aurora's: discrete, rectangular-edged red and blue patches (clearly visible
+over Africa, the Middle East, and the Maritime Continent/western Pacific) sit
+side by side without the broad, continuous, circulation-aligned bands seen in
+FCN. This blockiness is the spatial signature one would expect from a
+patch-embedding Vision Transformer (see Section 5) and indicates that
+Prithvi's cross-variable corrections are organised more by its internal patch
+grid than by the underlying continuous atmospheric circulation — a structural
+artefact distinct from, but compounding, the wind/momentum weakness
+identified in Sections 1.2 and the companion lats_FINAL report.
+
+2.4 Q850 maps: an ocean-favoured pattern for Aurora, fine speckle for FCN,
+    severe striping for Prithvi.
+Aurora's Q850 synergy is positive over almost all ocean basins and negative
+over high-latitude/continental interiors (Siberia, northern North America)
+and a band near 50-60S — i.e. the geographic *opposite* of its Z500 pattern
+(Section 2.2): moisture benefits from combined insertion precisely where
+evaporation, advection, and saturation are all actively co-varying (the
+open, moisture-source ocean surface), while the driest, coldest continental
+interiors show little benefit. FCN's Q850 synergy is positive almost
+everywhere but organised at a visibly finer (speckled, sub-synoptic) spatial
+scale than its Z500 field, consistent with moisture being structured by
+smaller-scale, more localized (often convective) processes than the smooth
+geopotential field. Prithvi's Q850 synergy map shows pronounced vertical
+striping — discrete longitudinal bands of strongly positive and strongly
+negative synergy with sharp, regular edges. This is a more severe version of
+the blockiness noted for Z500 (2.3) and is consistent with a patch-grid
+artefact being most visible in the field (moisture) where the model's
+underlying skill is weakest and least able to smooth over the patch
+boundaries.
+
+2.5 Land/ocean/coastal/terrain synthesis.
+Across both variables and all three models, the clearest, most repeatable
+spatial organising principle is dynamical regime, not simply land vs ocean:
+positive synergy tracks active transient-eddy (storm-track, baroclinic)
+regions for Z500, and tracks active moisture-source/advection (open ocean)
+regions for Q850, while negative synergy concentrates either in the deep
+tropics (FCN, Z500) or in regions where one single variable already provides
+a near-complete dynamical constraint (Aurora, oceans, Z500). Complex-terrain
+and coastal regions do not stand out as a distinct, consistent category in
+these particular maps — the dominant spatial control is the large-scale
+dynamical/thermodynamic regime (storm track, desert high, moisture source)
+rather than topography per se.
+
+
+3. EXPERIMENT-LEVEL INTERPRETATION
+--------------------------------------------------------------------------------
+3.1 The time-series view: do these models show flow-dependent dynamics or
+    pure statistical drift?
+In every one of the six RMSE time-series plots, the Control (dashed) curve
+keeps growing or fluctuating at a high, noisy level through day 60, while
+every inserted-variable curve drops sharply at day 30 and then plateaus, or
+even continues to *decrease* slightly, for the remainder of the forecast.
+If these networks only encoded a fixed climatological/statistical mapping
+independent of the evolving flow, inserting an accurate field at day 30 would
+not produce a lasting, growing-then-saturating divergence from the
+unconstrained Control trajectory — the forecast would simply drift back
+toward the same climatological error level. The fact that the benefit of
+insertion is retained and often grows through the remaining lead time is
+itself evidence of genuine flow-dependent error dynamics: the network is
+using the inserted information to update an internal state that then evolves
+forward dynamically, not just correcting the instantaneous diagnostic output.
+That said, Sections 1-2 show this flow-dependent response is partial and
+uneven — strong for wind->mass in most models, weak for mass->wind in
+Prithvi — so the correct summary is "partial, variable-selective
+flow-dependent dynamics," not full dynamical consistency.
+
+3.2 Control vs single-variable vs combined insertion, synthesised.
+Putting Sections 1 and the companion lats_FINAL report together: Wind-only
+insertion is the strongest single-variable lever on Z500 for FCN and Aurora;
+combined T+U+V insertion is the strongest lever for Prithvi (since its own
+wind pathway is weak, it needs the temperature pathway to do most of the
+work, and gains a further, smaller synergy bonus, Section 1.1); and for
+moisture (Q850), combined insertion is the best choice for every model,
+with no exception, because moisture's error has genuinely two,
+comparably-important sources (thermodynamic and dynamical) in all three
+architectures examined.
+
+3.3 Error propagation from inserted to non-inserted variables.
+Q850 is never inserted in any experiment here, so its response is a pure
+measure of propagation from the inserted variables. The universally positive
+response (Section 1.4) shows that, unlike the more selective and sometimes
+negative propagation documented for wind/mass cross-coupling in the companion
+lats_FINAL report, propagation *into* the moisture field from accurate
+temperature and/or wind is reliably beneficial across all three architectures
+— moisture's dependence on the dynamical/thermodynamic state appears to be
+the most robustly and universally learned cross-variable relationship found
+in this entire study.
+
+
+4. MODEL-BY-MODEL COMPARISON
+--------------------------------------------------------------------------------
+FCN: Best results — largest combined-insertion skill of any model for Z500
+(94.7%) and clearly positive, the largest synergy for Z500 (+11.6 pts),
+meaning its individual single-variable pathways are the most complementary/
+least redundant of the three models. Weakest results — the only model with a
+net-negative single-variable response anywhere in this report (T-only on
+Q850, -7.0%), and a visibly fine-speckled, less spatially coherent moisture
+synergy field than its own (very coherent) Z500 field, suggesting its global
+spectral representation handles the smooth dynamical field better than the
+sharp thermodynamic one. Global vs local consistency: the most globally
+coherent spatial synergy structure of the three (broad storm-track bands),
+consistent with a global spectral operator.
+
+AURORA: Best results — highest single-variable skill of any model for both
+Z500 (wind-only 88.3%) and Q850 (combined 49.0%, the best Q850 result of any
+model), and the clearest, most physically interpretable regional structure
+(oceans vs subtropical deserts, Section 2.2). Weakest results — the only
+model with negative domain-mean synergy for Z500 (-7.0 pts): its own
+single-variable skill is so high that combining variables introduces a small
+net redundancy/inconsistency cost rather than a benefit. Global vs local
+consistency: strong at both scales — globally coherent ocean/land split,
+but with sharply defined, physically meaningful regional exceptions (desert
+highs), rather than noisy speckle.
+
+PRITHVI-WxC: Best results — temperature-only insertion gives the best
+single-variable Z500 result among all models examined for the *wind*-deficient
+pathway substitute (49.8%, nearly matching Aurora's temperature result of
+59.5% despite Prithvi's overall weaker baseline), and Prithvi shows positive
+synergy for both Z500 (+2.1) and Q850 (+6.6), i.e. it never shows the
+redundancy problem Aurora shows. Weakest results — by far the lowest
+wind-only skill of any model for both variables (Z500 4.1%, Q850 0.3%,
+essentially no response), confirming yet again, in a third independent
+experiment, the wind/momentum weak point identified throughout this study;
+and the most visibly blocky, patch-grid-aligned spatial structure in its
+synergy maps (Section 2.3-2.4), indicating an architectural rather than
+purely statistical origin for some of its spatial error structure.
+
+
+5. ARCHITECTURE AND TRAINING INTERPRETATION
+--------------------------------------------------------------------------------
+This section follows directly from, and should be read together with, the
+equivalent section in the companion lats_FINAL report; the TUV results
+provide independent, geographically-resolved confirmation of the same
+architecture-linked tendencies.
+
+FCN's AFNO/global-spectral design (Pathak et al., 2022) explains both its
+strength (the most spatially coherent, large-scale-consistent Z500 synergy
+field, organised along storm tracks rather than scattered noise) and its one
+clear weakness (a degraded, rather than improved, moisture field under
+temperature-only insertion, and a finer-grained, less coherent moisture
+synergy map) — global low-order spectral representations are well matched to
+smooth, large-scale dynamical fields and less well matched to sharp,
+exponentially-nonlinear thermodynamic fields like moisture.
+
+Aurora's foundation-model training (multi-source pretraining across
+heterogeneous geophysical datasets, two-stage fine-tuning including a
+rollout-aware LoRA stage; Bodnar et al., 2024/2025) plausibly explains why it
+has the strongest, most complete single-variable pathways of the three models
+— exposure to diverse, multi-resolution, multi-source training data and
+explicit long-rollout fine-tuning would be expected to produce a more
+complete internal dynamical model, which is also why redundant information
+(adding temperature on top of an already-sufficient wind constraint) has
+comparatively little left to contribute and can mildly interfere (Section
+1.3) rather than help — there's "less room" for a second independent
+correction to add value once the first one is this complete.
+
+Prithvi-WxC's combination of masked-reconstruction and forecasting
+pretraining objectives on a patch-embedded 2D Vision-Transformer backbone
+(Schmude et al., 2024) is consistent with the model's specific profile across
+*every* experiment in this study and its companion report: strong at local,
+single-column, instantaneous cross-variable relations (temperature <->
+geopotential, via the kind of co-located masked-reconstruction task the
+pretraining objective directly rewards), weak at non-local, rotational,
+momentum-balance relations (wind <-> mass field, which a reconstruction
+objective does not explicitly require), and exhibiting visible patch-grid
+spatial artefacts in its error/synergy fields (Section 2.3-2.4), a recognised
+characteristic of patch-based ViT architectures applied to physically smooth
+geophysical fields.
+
+Taken together with the broader literature — Charlton-Perez et al. (2024)
+documenting non-physical "honeycomb" geostrophic-wind artefacts that grow
+with lead time in data-driven forecasts of Storm Ciaran, and the recent
+four-component Physical Consistency Score and FastNet (2025) work explicitly
+designing loss functions to improve geostrophic/hydrostatic/thermal-wind
+consistency — the TUV results in this directory should be read as additional,
+independently-derived evidence for the same general conclusion: current
+data-driven weather models learn balance relations implicitly, unevenly, and
+in an architecture/training-dependent way, rather than learning a single,
+universal, explicitly-enforced atmospheric dynamics.
+
+
+6. FINAL SCIENTIFIC CONCLUSIONS
+--------------------------------------------------------------------------------
+(1) Physical understanding revealed: combined T+U+V insertion is not
+uniformly "more physics is always better" — its value depends on how much
+independent information the two single-variable pathways already carry for
+a given model and a given field. This is itself a physically meaningful
+result: it shows these models behave as imperfect, partially redundant
+analogues of a real assimilation system, not as simple monotonic
+error-reduction machines.
+
+(2) Most dynamically consistent model: Aurora, by single-variable skill and
+by the physical interpretability of its spatial synergy pattern (ocean vs
+desert-high split for Z500; ocean vs continental-interior split for
+moisture) — though its very completeness is also why it is the one model
+that shows a measurable cost from redundant combined insertion.
+
+(3) Model benefiting most from insertion: Prithvi benefits proportionally
+the most from combined insertion (its weakest pathway, wind, is most
+effectively compensated for by the strength of its temperature pathway plus
+a positive synergy bonus), while FCN benefits with the largest synergy bonus
+in absolute percentage points for Z500.
+
+(4) Most important variables for correcting forecast evolution: wind for the
+mass/geopotential field in FCN and Aurora; temperature for the mass field in
+Prithvi; and, uniquely, BOTH temperature and wind jointly (with positive
+synergy in every model, no exceptions) for moisture — moisture is the one
+field in this entire study that never shows redundancy and always rewards
+combined dynamical information.
+
+(5) Where the models fail physically: Aurora — mild redundancy/interference
+when over-constraining an already well-determined field (Z500); FCN — a
+clear, isolated failure to improve (and in fact a degradation of) a sharp
+nonlinear thermodynamic field (moisture) from a smooth dynamical-field
+insertion; Prithvi — a deep and structurally consistent failure to couple
+its wind field to the rest of the atmospheric state, compounded by visible
+patch-grid spatial artefacts.
+
+(6) Main takeaways for a paper/report: (a) "synergy" (combined minus best
+single-variable insertion) is a useful second-order diagnostic, beyond simple
+RMSE improvement, for revealing whether a model's cross-variable error
+sources are redundant or independent; (b) spatial synergy maps are essential
+companions to domain-mean synergy numbers, since strongly positive and
+strongly negative regions can cancel in a global mean by an order of
+magnitude (e.g. Aurora's Z500 mean of -7 to -27% sits on top of a field whose
+local standard deviation is 13-177%); (c) the regional patterns are
+physically interpretable using classical dynamical meteorology — storm
+tracks/baroclinic zones (positive synergy for the mass field), subtropical
+thermally-forced highs (a unique role for temperature), and open-ocean
+moisture sources (a unique role for combined thermodynamic+dynamical
+information); and (d) the same model-specific blind spot (Prithvi's
+wind/momentum coupling) identified independently via two unrelated
+experimental designs (zonal insertion in the companion report; global TUV
+insertion here) is strong, mutually-reinforcing evidence that this is a real
+architectural/training limitation of the current Prithvi-WxC model rather
+than a coincidence of either single experiment.
+
+
+REFERENCES
+--------------------------------------------------------------------------------
+Charney, J.G. (1947/1948), foundational quasi-geostrophic theory; see also
+  "The Emergence of Quasi-Geostrophic Theory" (Springer).
+Arnold, C.P., and C.H. Dey (1986), "Observing-Systems Simulation Experiments:
+  Past, Present, and Future," Bull. Amer. Meteor. Soc.
+Masutani, M., et al. (2010), "Observing system simulation experiments at the
+  National Centers for Environmental Prediction," J. Geophys. Res., 115.
+Pathak, J., et al. (2022), "FourCastNet: A Global Data-driven High-resolution
+  Weather Model using Adaptive Fourier Neural Operators," arXiv:2202.11214.
+Bodnar, C., et al. (2024/2025), "A Foundation Model for the Earth System,"
+  Nature; arXiv:2405.13063.
+Schmude, J., et al. (2024), "Prithvi WxC: Foundation Model for Weather and
+  Climate," arXiv:2409.13598.
+Lam, R., et al. (2023), "GraphCast: Learning skillful medium-range global
+  weather forecasting," Science; arXiv:2212.12794.
+Charlton-Perez, A.J., et al. (2024), "Do AI models produce better weather
+  forecasts than physics-based models? A quantitative evaluation case study
+  of Storm Ciaran," npj Climate and Atmospheric Science; arXiv:2312.02658.
+FastNet (2025), "Improving the physical consistency of machine-learning
+  weather prediction models through loss function design," arXiv:2509.17601.
+================================================================================

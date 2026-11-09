@@ -1,0 +1,383 @@
+================================================================================
+PHYSICAL INTERPRETATION — TEMPERATURE INSERTION BY TERRAIN CLASS
+Cross-variable RMSE response (U500, V500, Z500, Q700) stratified by terrain
+class: Land Low (<300 m), Land Mod (300-1500 m), Land High (>1500 m),
+Ocean, Polar (|lat|>60 deg)
+Models: Aurora, FourCastNet (FCN), Prithvi-WxC, GraphCast
+Source plots: fig_terrain_t_ins_rmse_improvement_bar.png,
+  fig_terrain_t_ins_rmse_timeseries.png (one copy in each model folder)
+Prepared from table_t_ins_terrain_summary.csv and the per-model
+  intermediates/*_t_ins_terrain_rmse.csv caches.
+================================================================================
+
+0. EXPERIMENT DESIGN
+--------------------------------------------------------------------------------
+Temperature is inserted (forced to ERA5 truth) and the response of U500,
+V500, Z500, and Q700 is measured, stratified into five terrain classes
+spanning a genuine orographic-complexity gradient (Land Low -> Land Mod ->
+Land High) plus two non-orographic reference classes (Ocean, Polar). This is
+the terrain analogue of the cloud-regime breakdown in the companion tcc
+report and of the latitude-band breakdown in common/lats_FINAL/PHYSICAL_ANALYSIS.txt.
+Unlike the purely zonal lats_FINAL bands, terrain class mixes latitude,
+surface type, and orographic complexity together by construction, so
+results here should be read as "where," not "how far poleward."
+
+
+1. PHYSICAL INTERPRETATION OF MODEL BEHAVIOUR
+--------------------------------------------------------------------------------
+1.1 A consistent, model-spanning signature: temperature insertion helps the
+    MASS field (Z500) more over mountains than over ocean or the pole.
+
+Aurora's Z500 mature-phase improvement rises from Ocean (54.5%) and Polar
+(52.3%, the two weakest) through Land Low (68.4%) and Land Mod (73.5%) to
+Land High (72.5%); FCN's shows the same ordering (Ocean 19.9% and Polar
+38.2% are not the simple low end, but Land High at 38.3% and Land Mod at
+41.4% remain among the strongest). Prithvi's Z500 improvement is elevated
+over land generally but is NOT monotonic with elevation and does NOT peak at
+Land High: Land Low 58.6%, Land Mod 61.0% (Prithvi's actual peak), Land High
+47.2% — its lowest land value, on par with Ocean (49.8%) and Polar (49.2%).
+Two of four models (Aurora, FCN) therefore show their strongest temperature-
+to-geopotential coupling over complex/elevated land generally (though
+Aurora's own peak is Land Mod, not Land High, by a hair); Prithvi instead
+shows its BEST land-class Z500 result at Land Mod and its WORST land-class
+result at Land High — the opposite of what an earlier version of this
+report concluded (see Section 1.2 for why this matters alongside Prithvi's
+V500 finding, and Section 4/6 for the corrected model ranking).
+
+Two compatible physical readings are worth distinguishing. First, the
+control (uncorrected) RMSE baseline is itself larger over Land High than
+over Ocean for Aurora (1614 vs 1250 m^2 s^-2) — a meaningful part of any
+percentage-improvement metric over complex terrain reflects there simply
+being more (uncorrected) error to remove, some of it likely
+representativeness/resolution error from comparing a forecast grid cell to
+a point or a smoothed orographic mass field, rather than a deeper dynamical
+effect. (For Prithvi specifically, the baseline is actually comparable
+between Land High and Ocean — 91.5 vs 95.6 m, using the corrected control
+run — so this baseline-magnitude effect does not explain Prithvi's terrain
+pattern; see Section 1.2 for what does.) Second, and not mutually exclusive,
+mountainous terrain is a region where temperature is an unusually
+informative variable precisely because elevated terrain heating drives
+thermally-direct local circulations (mountain-valley flows, elevated heat
+pumps) and strong local hydrostatic height anomalies that a dry hydrostatic
+correction can capture cleanly, whereas over the open ocean and at the poles
+the geopotential field is comparatively more controlled by remote,
+advected, large-scale dynamics that a local temperature correction cannot
+fully supply. Both readings point the same direction for Aurora (more correctable
+local error over complex terrain), but only the second is a genuine
+dynamical effect — a caveat to bear in mind before treating the largest
+percentage gains as the most dynamically meaningful ones.
+
+1.2 Prithvi's mountain weak point: Land High is a compound failure — both
+    its weakest land-class Z500 AND its only negative V500, in the same
+    terrain class.
+
+Land High is Prithvi's weakest land class for Z500 (47.2% mature, below
+Land Low/Land Mod and even Ocean/Polar, Section 1.1) and its V500 response
+over the SAME terrain class is sharply negative at the Adjustment Phase
+(-29.9%) and still negative at the Mature Phase (-6.9%) — the only terrain
+class where Prithvi's V500 goes negative at all. Unlike an earlier version
+of this report, which framed this as a strong Z500 result coexisting with a
+localised V500 failure, the corrected data shows both fields are weak
+specifically at Land High — a single, terrain-localised region where
+Prithvi's temperature-insertion pathway underperforms across the board, not
+a case of one field's success masking another's failure. This is still a
+clean, terrain-localised illustration of balance-relation breakdown: the
+physical reading is well supported by the orographic dynamics literature —
+geostrophic balance is explicitly broken by orographic forcing, producing
+strongly ageostrophic motion on the lee slope and generating mountain
+(gravity) waves that redistribute momentum vertically (Wang et al., 2022,
+Adv. Meteorology; gravity-wave-drag literature, Section 5) — exactly the
+kind of locally ageostrophic, non-hydrostatic flow that a model relying on
+a simple, geographically uniform thermal-wind heuristic would be expected to
+handle worst precisely where real geostrophic balance itself is weakest;
+the correction here is that this breakdown apparently extends to Z500 too
+at Land High, not just V500.
+
+1.3 GraphCast's second independent weak spot: complex terrain, not just the
+    equator.
+
+GraphCast's U500 over Land High is negative at BOTH phases (-5.7%
+Adjustment, -28.5% Mature — the single worst cross-variable result for any
+model/terrain/variable combination in this dataset). Its Z500 mature-phase
+response is also negative over Land Mod (-33.2%) and Land High (-6.8%), and
+mildly negative at the Pole (-16.0%), with only Ocean (10.8%) and, at the
+Adjustment Phase, most classes staying reliably positive. Combined with the
+sharp equatorial breakdown already documented for GraphCast-S in the
+companion lats_FINAL report (Section 1.3 there), this shows GraphCast has
+(at least) two independent dynamical blind spots — the deep tropics (low
+Rossby number) and complex/mountainous terrain (strongly ageostrophic,
+orographically-forced flow) — both regimes where the simple large-scale
+geostrophic/rotational balance its icosahedral mesh seems to represent well
+elsewhere breaks down in the real atmosphere too.
+
+1.4 FCN's moisture failure, reproduced a fourth time, now with a
+    terrain-specific twist.
+
+FCN's Q700 mature-phase response is negative over Ocean (-6.2%) and
+essentially flat/near-zero over Land Mod (1.3%) and Polar (-0.8%), with only
+modest positive responses over Land Low (1.8%) and Land High (4.3%). This
+again reproduces the moisture-specific failure documented in the companion
+tcc and tuv_final reports, and adds the detail that the failure is, if
+anything, WORST over the open ocean — the most spatially homogeneous
+moisture surface of all five classes — reinforcing that this is a
+field-level (moisture-specific), not a regional-complexity-specific,
+limitation of FCN's temperature-to-moisture pathway.
+
+
+2. REGIONAL AND SPATIAL ANALYSIS
+--------------------------------------------------------------------------------
+2.1 Strongest improvements: complex/elevated land terrain generally, for
+two of four models' geopotential field (Aurora, FCN — Section 1.1); Prithvi
+is also strongest over elevated land but peaks at Land Mod, not Land High
+(Section 1.1) — the clearest, most reproducible regional signal in this
+dataset is "elevated land helps," not "the highest elevation class helps
+most."
+
+2.2 Strongest failures: GraphCast over Land High and Land Mod (Section 1.3);
+Prithvi's Z500 AND V500 both specifically over Land High (Section 1.2);
+FCN's moisture over Ocean (Section 1.4).
+
+2.3 Hemispheric asymmetry: terrain class, as defined here, does not split
+by hemisphere (Land High includes the Andes, Himalaya/Tibetan Plateau,
+Rockies, and East African highlands together; Polar pools both poles), so
+this dataset cannot resolve a Northern-vs-Southern-Hemisphere asymmetry —
+the same limitation noted for the latband metric in the companion
+lats_FINAL report. What it resolves instead, and resolves clearly, is the
+land-elevation gradient and the land/ocean/polar contrast.
+
+2.4 Smooth large-scale flow regions vs complex terrain. Ocean is, in every
+model, among the weakest-or-mid-table classes for Z500/U500 improvement
+from temperature insertion (Section 1.1) — consistent with the ocean
+surface being the smoothest, most large-scale-dominated regime, where a
+local temperature correction has the least unique information to add
+relative to what the large-scale circulation already determines. Complex
+terrain (Land High) is, by contrast, simultaneously where two of four
+models (Aurora, FCN) see LARGE gains (Z500) and where two of four models
+see their WORST failures (Prithvi's Z500 AND V500 both, GraphCast's
+U500/Z500) — i.e. complex terrain is a regime of both real opportunity
+(Aurora, FCN) and real risk (Prithvi, GraphCast) simultaneously, exactly as
+expected for a regime where the simplifying geostrophic/hydrostatic
+assumptions that hold elsewhere are most likely to break down (Section
+1.2-1.3). Notably, Land High is where Prithvi's mass-field pathway is
+weakest of any land class, not strongest — the opportunity/risk split here
+runs by MODEL more than by a universal "complex terrain helps mass fields"
+rule.
+
+
+3. EXPERIMENT-LEVEL INTERPRETATION
+--------------------------------------------------------------------------------
+3.1 What temperature-only insertion reveals about terrain-dependence.
+
+For Aurora and FCN, temperature insertion's benefit to Z500 is terrain-
+organised in a way consistent with both a baseline-error effect and a
+genuine "temperature is most informative where local thermal forcing
+dominates" effect (Section 1.1). Prithvi's Z500 is also elevated over land
+generally, but peaks at Land Mod and is weakest of all at Land High — i.e.
+its terrain organisation is real but does not track elevation monotonically
+the way Aurora's and FCN's roughly do. For GraphCast, temperature
+insertion's benefit to Z500/U500 is instead terrain-organised around where
+the model's mesh-based dynamics break down (Section 1.3).
+
+3.2 Cases where temperature insertion helps one field while harming another,
+    in the SAME terrain class.
+
+A clean case in this dataset is Prithvi over Land Low: Z500 improves by
+58.6% mature (its second-best land class, Section 1.1) while U500 is
+degraded by -14.1% mature (Section 1.3b), in the identical terrain class,
+from the identical insertion. A second, even more striking case is Prithvi
+over Land High, where BOTH Z500 (47.2%, its weakest land class) and V500
+(-6.9%, its only negative terrain class) underperform together (Section
+1.2) — here the divergence is not one field succeeding while another fails,
+but a single terrain class where the model's temperature-insertion pathway
+is broadly unreliable across every cross-variable examined. Both cases are
+strong evidence that "improves dynamical balance" and "improves agreement
+with truth" are not the same thing here — the model's fields do not move in
+a mutually consistent way even in terrain classes where individual fields
+show a moderate-to-large percentage improvement, exactly the kind of
+imbalance the companion reports' Sections on geostrophic adjustment theory
+describe.
+
+3.3 Error propagation from the inserted variable into others, by terrain.
+
+Propagation is reliably positive (temperature insertion helps the other
+fields) over land of all elevations for Aurora and FCN; moderate for Z500
+but weak-to-negative for U500/V500 for Prithvi everywhere, and weakest of
+all specifically at Land High, where even Z500 propagation drops off; and
+unreliable in sign over land (especially Land High/Land Mod) for GraphCast.
+Ocean and Polar are the two classes where propagation is weakest but most
+uniformly non-negative across all four models — i.e. the safest, if least
+exciting, terrain classes for this particular insertion.
+
+
+4. MODEL-BY-MODEL COMPARISON
+--------------------------------------------------------------------------------
+AURORA: best — Z500 over Land Mod/Land High (73.5%/72.5% mature), the
+model's strongest cross-variable result in this dataset. Weakest — V500
+over Land Mod specifically (20.9% mature, its lowest entry), and Q700 over
+Land Mod is the model's only near-zero/negative cell (-5.8% Adjustment,
+recovering to 5.2% Mature). Global vs local consistency: broadly globally
+consistent, organised cleanly along the land-elevation gradient with no
+outright sign flips.
+
+FOURCASTNET: best — Z500 over Land Mod (41.4% mature) and Land Low (39.0%
+mature). Weakest — Z500 and U500 over Ocean lag well behind every land
+class at the Adjustment Phase (0.9% and 1.1% respectively, though both
+catch up substantially by the Mature Phase); Q700 is negative or flat almost
+everywhere, worst over Ocean (Section 1.4). Global vs local consistency:
+moderate terrain-dependence with a consistent land > ocean ordering for the
+wind/mass fields, and the same isolated moisture weakness found throughout
+this report series.
+
+PRITHVI-WxC: best — a solid Z500 result over land generally, peaking at
+Land Mod (61.0% mature, Section 1.1); Q700 is strikingly strong at the Pole
+specifically (70.8% mature) but is otherwise weak-to-flat over land (6.9%
+Land Low, -0.2% Land Mod, -0.9% Land High — essentially zero or mildly
+negative over Land Mod/Land High). Weakest — Land High is a genuine
+double failure: Z500 (47.2% mature, its lowest land value) AND V500 (-6.9%
+mature, the only terrain class where Prithvi's wind field is actively
+harmed rather than merely unhelped) both underperform there (Section 1.2).
+Global vs local consistency: moderate LOCAL (single-terrain-class)
+consistency that is clearly terrain-organised but not cleanly
+elevation-monotonic; Land High stands out as a terrain-localised
+dynamical inconsistency affecting more than one field at once.
+
+GRAPHCAST: best — V500 responds reasonably and fairly consistently across
+terrain (14-36% mature, no sign flips). Weakest — U500 and Z500 over Land
+High/Land Mod, both negative at the Mature Phase, the worst and second-worst
+terrain-class results for any model/variable pair in this dataset (Section
+1.3). Global vs local consistency: the least terrain-consistent model —
+strong over ocean/polar, unreliable over complex land terrain, mirroring its
+strong-extratropics/weak-equator split from the companion lats_FINAL report.
+
+
+5. ARCHITECTURE AND TRAINING INTERPRETATION
+--------------------------------------------------------------------------------
+Prithvi-WxC's mountain-localised V500 failure, and its weaker (though still
+positive-in-most-other-classes) Z500 result at the same location (Section
+1.2), are a natural consequence of its patch-embedded Vision Transformer
+architecture and masked-reconstruction-plus-forecasting pretraining
+(Schmude et al., 2024): the model's wind/momentum pathway is already shown,
+throughout this report series, to be its weakest learned balance relation
+(Section 1.3 of the companion lats_FINAL and tuv_final reports), and complex
+terrain is exactly where the TRUE atmospheric wind field itself departs most
+strongly from the simple thermal-wind/geostrophic relation a reconstruction-
+trained network would default to (orographically-forced ageostrophic flow
+and mountain waves; Section 1.2 references). A model whose wind pathway is
+only weakly balance-constrained even in the smooth, geostrophically
+well-behaved case would be expected to fail worst exactly where the true
+wind field itself is least geostrophic — which is precisely what is
+observed for V500. That the SAME terrain class also shows Prithvi's weakest
+(not strongest) land-class Z500 result suggests the orographic breakdown at
+Land High is not confined to the explicitly wind-dependent field alone, but
+partially destabilises the mass field derived alongside it too.
+
+GraphCast's icosahedral multi-mesh GNN (Lam et al., 2023) represents the
+sphere through a fixed graph hierarchy with message-passing at discrete
+spatial scales; it has no terrain-following coordinate or explicit
+representation of sub-grid orographic forcing. The broader NWP literature
+notes that orographic gravity-wave drag parameterisation problems are
+"some of the largest and most persistent circulation errors" in global NWP
+and climate models specifically because of inadequate representation of
+orography's dynamical effects (Section 5 references), and that fine-scale,
+narrow sub-grid orography can generate non-hydrostatic effects current
+parameterisations do not capture well even in physics-based models — a
+purely data-driven graph model with a fixed mesh resolution would plausibly
+inherit an analogous (if differently-caused) blind spot over the most
+topographically complex terrain, consistent with GraphCast's observed
+Land-High/Land-Mod failures here.
+
+FCN's global spectral (AFNO) representation (Pathak et al., 2022) is
+land-elevation-INSENSITIVE in its moisture failure (Section 1.4) — the
+degradation appears over Ocean, the smoothest possible surface, not over
+complex terrain — supporting the interpretation (Section 5, tcc report)
+that FCN's moisture weakness is a field-level (spectral-smoothing) property
+rather than a terrain-complexity-driven one.
+
+Aurora's Swin-Transformer windowed-attention architecture with multi-source,
+rollout-aware foundation-model training (Bodnar et al., 2024/2025) again
+plausibly explains its comparatively even, terrain-organised-but-not-
+terrain-broken performance: windowed attention can represent a smoothly
+varying elevation-dependent response (as observed) without the sharp,
+terrain-localised sign flips seen in GraphCast or Prithvi's V500.
+
+
+6. FINAL SCIENTIFIC CONCLUSIONS
+--------------------------------------------------------------------------------
+(1) Physical understanding revealed: terrain class is a powerful diagnostic
+axis precisely because it concentrates the regimes (mountains) where the
+geostrophic/hydrostatic approximations that govern most of this report
+series' physical interpretation are themselves weakest in the real
+atmosphere — making it the most effective single breakdown, of the four in
+this study, for exposing terrain-localised dynamical inconsistencies.
+
+(2) Most dynamically consistent model: Aurora — strong, smoothly
+terrain-organised gains with no sign flips anywhere in this dataset.
+
+(3) Model benefiting most from insertion: Aurora, for Z500 specifically —
+the single largest cross-variable improvement (73.5%, Land Mod) found
+anywhere in this four-report series, with no terrain-localised failures
+of its own; Prithvi is a solid second on Z500 over land generally (peaking
+61.0% at Land Mod) but, unlike Aurora, has a genuine terrain-localised
+double failure at Land High (Section 1.2).
+
+(4) Most important variable: temperature's hydrostatic effect on Z500 is
+strong over land generally for Aurora, FCN, and (with a non-monotonic
+elevation profile) Prithvi; its effect on the wind field is the most
+terrain-sensitive and least reliable pathway, especially over mountains,
+for both Prithvi and GraphCast.
+
+(5) Where the models fail physically: Prithvi's Z500 AND V500 both fail
+specifically over Land High (its weakest land class for the former, its
+only negative terrain class for the latter); GraphCast's U500/Z500 also
+fail over the most topographically complex land (Land High/Land Mod) —
+independent evidence, from two architecturally very different models, that
+current data-driven weather models share a common difficulty with the
+ageostrophic, orographically-forced component of the real atmosphere over
+complex terrain, and for Prithvi this difficulty is not confined to the
+wind field alone.
+
+(6) Main takeaways for a paper/report: (a) terrain-stratified insertion
+experiments can isolate dynamical failures that a flat, domain-mean or
+purely zonal analysis would average away — the Prithvi Land-High and
+GraphCast U500/Land-High failures are invisible in the domain-mean TUV
+results but stand out clearly here; (b) the largest percentage gains
+(Aurora's 73.5% Z500 over Land Mod) should be interpreted alongside the
+underlying baseline error, since part of any percentage gain over complex
+terrain reflects a larger starting error, not only stronger physical
+coupling; and (c) orography is, in the physics-based NWP literature, a
+well-known source of geostrophic-balance breakdown and some of the largest,
+most persistent circulation errors in operational models — the fact that
+two structurally different AI weather models independently show their
+clearest dynamical failures over exactly this regime suggests the
+difficulty is rooted in the real atmosphere's physics there, not merely in
+any one architecture's idiosyncrasies.
+
+
+REFERENCES
+--------------------------------------------------------------------------------
+Charney, J.G. (1947/1948), foundational quasi-geostrophic theory.
+Arnold, C.P., and C.H. Dey (1986), "Observing-Systems Simulation Experiments:
+  Past, Present, and Future," Bull. Amer. Meteor. Soc.
+Masutani, M., et al. (2010), "Observing system simulation experiments at the
+  National Centers for Environmental Prediction," J. Geophys. Res., 115.
+Pathak, J., et al. (2022), "FourCastNet: A Global Data-driven High-resolution
+  Weather Model using Adaptive Fourier Neural Operators," arXiv:2202.11214.
+Bodnar, C., et al. (2024/2025), "A Foundation Model for the Earth System,"
+  Nature; arXiv:2405.13063.
+Schmude, J., et al. (2024), "Prithvi WxC: Foundation Model for Weather and
+  Climate," arXiv:2409.13598.
+Lam, R., et al. (2023), "GraphCast: Learning skillful medium-range global
+  weather forecasting," Science; arXiv:2212.12794.
+Wang, et al. (2022), "Overview of the Application of Orographic Data in
+  Numerical Weather Prediction in Complex Orographic Areas," Advances in
+  Meteorology — documents geostrophic balance breakdown, ageostrophic lee-
+  slope motion, and gravity-wave generation by orographic forcing.
+Kwon et al. (2024), "Orographic gravity-wave drag over multiple bell-shaped
+  mountains," Quarterly Journal of the Royal Meteorological Society.
+Charlton-Perez, A.J., et al. (2024), "Do AI models produce better weather
+  forecasts than physics-based models? A quantitative evaluation case study
+  of Storm Ciaran," npj Climate and Atmospheric Science; arXiv:2312.02658.
+See also companion analyses: common/lats_FINAL/PHYSICAL_ANALYSIS.txt,
+  common/tuv_final/PHYSICAL_ANALYSIS.txt, common/tcc/PHYSICAL_ANALYSIS.txt,
+  and common/terrain2/PHYSICAL_ANALYSIS.txt.
+================================================================================

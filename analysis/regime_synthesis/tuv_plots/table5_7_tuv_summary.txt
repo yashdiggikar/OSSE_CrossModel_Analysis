@@ -1,0 +1,22 @@
+Table 5.7 — Combined T+UV Insertion Performance Summary
+Phase: Mature (Days 40–60) | Improvement = (Ctrl−Exp)/Ctrl × 100%
+==========================================================================================
+Variable   Model  Ctrl_RMSE_mature  T_only_impr%  UV_only_impr%  T+UV_impr%  Synergy%
+    T500     FCN              4.73        100.00          67.13      100.00      0.00
+    T500  Aurora              7.95         97.14          83.93       80.92    -16.22
+    T500 Prithvi              9.78         76.35          -3.55       76.35      0.00
+    U500     FCN             11.89         21.50         100.00      100.00      0.00
+    U500  Aurora             12.41         40.56          93.32       65.55    -27.77
+    U500 Prithvi              8.88          4.14          37.06       37.06      0.00
+    V500     FCN             11.29         20.87         100.00      100.00      0.00
+    V500  Aurora              9.76         24.10          94.16       46.38    -47.78
+    V500 Prithvi              7.95         -0.24          15.64       15.64      0.00
+    Z500     FCN           1213.24         35.19          83.08       94.67     11.59
+    Z500  Aurora           1582.12         59.53          88.28       81.31     -6.96
+    Z500 Prithvi            111.66         49.82           4.06       51.90      2.09
+    Q/RH     FCN             29.14         -7.01          38.59       41.14      2.55
+    Q/RH  Aurora              0.00         26.03          37.56       48.96     11.40
+    Q/RH Prithvi              0.00         17.79           0.30       24.34      6.55
+==========================================================================================
+Note: Synergy = T+UV improvement − max(T-only, UV-only improvement)
+      Positive Synergy = dual insertion outperforms single-variable insertion

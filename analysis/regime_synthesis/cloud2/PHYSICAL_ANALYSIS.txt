@@ -1,0 +1,331 @@
+================================================================================
+PHYSICAL INTERPRETATION — WIND (U+V) INSERTION BY CLOUD REGIME
+Cross-variable RMSE response (T500, Z500, Q850) stratified by ERA5
+total-cloud-cover (TCC) regime
+Models: Aurora, FourCastNet (FCN), Prithvi-WxC, GraphCast
+Source plots: fig_cloud2_uv_ins_rmse_improvement_bar.png,
+  fig_cloud2_uv_ins_rmse_timeseries.png (one copy in each model folder)
+Prepared from table_uv_ins_cloud_regime_summary.csv and the per-model
+  intermediates/*_uv_ins_regime_rmse.csv caches.
+================================================================================
+
+0. EXPERIMENT DESIGN
+--------------------------------------------------------------------------------
+Wind (U+V) is inserted (forced to ERA5 truth) and the response of
+temperature (T500), geopotential (Z500), and 850 hPa moisture (Q850) is
+measured, stratified into the same four cloud regimes used in the companion
+tcc report (Clear/Cirrus/Mixed/Opaque). This is the cloud-regime analogue of
+the domain-mean Wind-Ins experiment already analysed in
+common/lats_FINAL/PHYSICAL_ANALYSIS.txt and common/tuv_final/PHYSICAL_ANALYSIS.txt.
+
+NOTE ON A NOW-FIXED DATA ISSUE — an earlier version of this report excluded
+Prithvi's T500 row: the Control source file used for Prithvi in this script
+previously pointed at the same OSSE output file used elsewhere as the
+temperature-INSERTION run, so from the day-30 injection step onward its
+T500 field was, by construction, equal to the ERA5 truth, producing an
+artefactual exactly-0.0 "control" RMSE and hence an undefined percentage
+improvement. Fixed 2026-07-14 by repointing Prithvi's control to the genuine
+free-running control run (prithviOSSE/run2/output/control_forecast_Jan2022.nc)
+and recomputing. All values in this report, including Prithvi's T500 row
+below (Section 1.4), now come from that corrected control and are valid.
+
+
+1. PHYSICAL INTERPRETATION OF MODEL BEHAVIOUR
+--------------------------------------------------------------------------------
+1.1 The wind-constrains-mass asymmetry holds, and is remarkably uniform
+    across cloud regimes, for the two best-behaved models.
+
+Aurora's T500 mature-phase improvement from wind insertion is 80-83% in
+EVERY cloud regime (83.4% Clear, 80.4% Cirrus, 82.8% Mixed, 83.1% Opaque);
+its Z500 improvement is 87-88% in every regime. FCN's T500 improvement
+likewise stays in a narrow band (54-67% mature) with a mild peak in Mixed
+(67.5%), and its Z500 improvement (70-85% mature) peaks in Mixed too (85.3%).
+This reproduces, from an entirely different stratification axis, the same
+two findings already established in the companion reports: (a) wind
+information is a very strong, almost universally reliable constraint on the
+mass/thermal field (the geostrophic/thermal-wind pathway), and (b) FCN's
+sensitivity to the local dynamical regime (peaking specifically in Mixed,
+the most actively baroclinic/frontal regime) versus Aurora's comparatively
+flat, regime-independent strength — exactly the same model-specific
+signature documented for the reverse experiment (temperature insertion) in
+the companion tcc report (Section 1.2 there).
+
+1.2 Moisture (Q850) is the field where cloud regime matters MOST, and where
+    the four models disagree most sharply in sign.
+
+Aurora's Q850 response to wind insertion shows a U-shape across regimes:
+strongest in the two "pure" end-member regimes (47.2% Clear, 38.2% Opaque)
+and weakest in the two transitional regimes (23.0% Cirrus, 22.8% Mixed).
+Physically, Clear and Opaque are the most homogeneous, large-scale-organised
+moisture states (respectively dry/subsiding and saturated/deeply-lifted),
+while Cirrus and Mixed are transitional states where moisture is patchier
+and less directly tied to the large-scale circulation alone — exactly where
+a purely wind-driven (advective) correction would be expected to be least
+sufficient on its own. FCN's Q850 response is comparatively flat (36-40%
+across all regimes) — FCN does not show this U-shape, suggesting its
+moisture-from-wind pathway, whatever its limitations (Section 1.3, tcc
+report), is not as strongly regime-conditioned as Aurora's.
+
+GraphCast and Prithvi diverge sharply, and in OPPOSITE directions, by the
+Mature Phase. GraphCast's Q850 Adjustment-Phase response is strongly
+positive in every regime (29-44%) but collapses by the Mature Phase to
+near-zero or negative in three of four regimes (2.7% Cirrus, -1.3% Mixed,
+6.4% Opaque, with only Clear remaining strong at 45.9%) — the same
+Adjustment-to-Mature collapse documented for GraphCast's Z500/T500 pathway
+in the companion tcc report (Section 1.4) and, again, in the terrain2 report
+below, now confirmed a third time. Prithvi's Q850 response is, uniquely,
+NEGATIVE at the Mature Phase in every single regime (-19.3% Clear, -15.4%
+Cirrus, -11.7% Mixed, -10.6% Opaque) despite being mildly positive or
+near-zero at the Adjustment Phase — i.e. wind insertion actively and
+increasingly degrades Prithvi's moisture forecast the longer the model runs,
+in every cloud regime tested.
+
+1.3 Z500's response to wind insertion is the cleanest single confirmation in
+    this report series of Prithvi's selective wind/momentum weak point.
+
+Prithvi's Z500 improvement from wind insertion is essentially zero across
+every regime (7.2%, 3.2%, -0.2%, 0.1% Adjustment; 0.3%, 3.5%, 5.6%, 7.9%
+Mature) — by far the weakest Z500 response to ANY insertion, by ANY model,
+anywhere in this four-report series (compare to Prithvi's own 49-52% Z500
+response to temperature insertion in the tcc report, Section 1.3 there —
+itself far larger than the ~0% response to wind insertion found here).
+Since Z500 here is being driven purely by the wind field (the directly
+inserted variable), this is unambiguous: Prithvi's internal representation
+does not translate an accurate wind field into an improved geopotential
+field, in any cloud regime, at any phase — the clearest possible
+confirmation that Prithvi's weak point is specifically the wind-to-mass
+(geostrophic) coupling direction, not a general insensitivity to insertion.
+
+1.4 Prithvi's temperature field is also actively harmed by wind insertion —
+    every cloud regime, and worsening over time — extending its Q850
+    failure (Section 1.2) to a second non-inserted field.
+
+Prithvi's T500 mature-phase "improvement" from wind insertion is negative in
+every cloud regime (-29.2% Clear, -14.0% Cirrus, -16.9% Mixed, -23.2%
+Opaque), and is already negative at the Adjustment Phase in every regime too
+(-7.1% to -10.0%). Unlike Q850 (Section 1.2), which starts near-neutral-to-
+mildly-positive at the Adjustment Phase before turning negative, Prithvi's
+T500 response is harmful from the very first phase and grows more harmful as
+the forecast matures. Combined with Section 1.3's near-zero Z500 response,
+this completes the picture: an artificially perfect wind field measurably
+degrades two of Prithvi's three examined cross-variables (T500, Q850) and
+does essentially nothing for the third (Z500), in every cloud regime tested —
+the most comprehensive single piece of evidence in this report series that
+Prithvi's wind representation is not merely disconnected from the rest of
+its state but, once forced to an out-of-distribution "perfect" value,
+actively destabilises it.
+
+
+2. REGIONAL AND SPATIAL ANALYSIS
+--------------------------------------------------------------------------------
+As in the companion tcc report, this dataset's stratification is by
+instantaneous local cloud/flow regime rather than fixed geography, so it
+should be read as a flow-regime decomposition rather than a literal map.
+Read alongside the TUV spatial synergy maps (common/tuv_final/PHYSICAL_ANALYSIS.txt,
+Section 2), the cloud-regime results here corroborate the same physical
+picture from a different angle: Aurora's near-saturation of the wind-to-mass
+pathway (uniform 80-88% across regimes) is consistent with the TUV maps
+showing Aurora's Z500 already very well constrained by wind almost
+everywhere except over a handful of specific subtropical desert/thermal
+regions; FCN's regime-peaked (Mixed-favoured) profile is consistent with the
+TUV maps showing FCN's positive synergy concentrated along the storm
+tracks. The moisture U-shape found for Aurora here (Section 1.2) is also
+broadly consistent with the TUV maps' finding that Aurora's moisture synergy
+is strongly positive over open ocean (a relatively homogeneous, Clear- or
+Opaque-leaning moisture source region) and weaker/negative over cold,
+dry continental interiors.
+
+
+3. EXPERIMENT-LEVEL INTERPRETATION
+--------------------------------------------------------------------------------
+3.1 What wind-only insertion reveals about each model's dependence
+    structure, regime by regime.
+
+For Aurora and FCN, wind insertion is a strong, broadly regime-independent
+(Aurora) or mildly regime-dependent (FCN) constraint on both temperature and
+geopotential — confirming the thermal-wind/geostrophic relation is well
+represented internally for both models across essentially the whole
+dynamical spectrum sampled by these four cloud regimes. For Prithvi, wind
+insertion is a near-total non-event for Z500 (Section 1.3) and an actively
+harmful one for Q850 (Section 1.2) — wind information does not propagate
+constructively into either the mass field or the moisture field for this
+model, in this experiment.
+
+3.2 Cases where wind insertion helps one field but harms another.
+
+The single clearest case in this dataset is Prithvi: U/V is, by
+construction, made perfectly accurate, yet both Q850 (Section 1.2) and T500
+(Section 1.4) get WORSE in every regime by the Mature Phase, while Z500 is
+left essentially unchanged (Section 1.3). The likely dynamical reading,
+consistent with the companion reports' findings on Prithvi, is that an
+artificially accurate wind field, decoupled from the rest of Prithvi's
+internal representation, introduces a state the model's decoder cannot
+reconcile with its own (uncorrected) thermodynamic and moisture fields, and
+the inconsistency manifests as amplifying error in both rather than damping
+it — the same kind of "insertion as out-of-distribution forcing" failure
+mode documented for Prithvi's temperature field under Wind-Ins in the
+companion lats_FINAL report (Section 1.4 there).
+
+3.3 GraphCast: a third confirmation of the Adjustment-to-Mature collapse.
+
+GraphCast's Z500/T500/Q850 all show the same qualitative pattern here: large
+positive Adjustment-Phase gains that erode substantially, and sometimes
+reverse, by the Mature Phase, in nearly every cloud regime. Because this
+pattern now appears independently in three different analyses (tcc, cloud2,
+and terrain2 below) and for both single-variable insertion experiments
+(T-only and UV-only), it should be treated as a robust, general property of
+GraphCast's response to insertion in this study, not an artefact of any one
+experimental design.
+
+
+4. MODEL-BY-MODEL COMPARISON
+--------------------------------------------------------------------------------
+AURORA: best — T500 and Z500 respond strongly and almost identically across
+all four cloud regimes (80-88% mature), the most regime-independent
+wind-to-mass coupling of any model in this dataset. Weakest — Q850 dips in
+the two transitional regimes (Cirrus, Mixed), the model's only meaningfully
+regime-sensitive cross-variable pathway here. Global vs local consistency:
+highly globally consistent — the same strong pathway operates regardless of
+local cloud state.
+
+FOURCASTNET: best — T500/Z500 both peak in the Mixed (most actively
+baroclinic) regime, the cleanest "skill tracks dynamical activity" signature
+of the four models, mirroring its own behaviour under temperature insertion
+(tcc report, Section 1.2). Weakest — none of FCN's fields go negative here
+(unlike the tcc report's moisture finding), making wind insertion a more
+uniformly safe constraint for FCN than temperature insertion is. Global vs
+local consistency: moderate regime-dependence, smoothly varying, no sign
+flips — consistent with a global spectral representation.
+
+PRITHVI-WxC: best — none of the three cross-variables examined here show a
+strong, reliable positive response to wind insertion (T500 negative in
+every regime, -14% to -29% mature; Z500 ~0%; Q850 negative in every
+regime). This experiment is, on its own, the strongest single piece of
+evidence in this report series that Prithvi's wind field is dynamically
+disconnected from — and, once forced, actively destabilising to — its mass,
+thermal, and moisture fields alike. Weakest — T500 and Q850 are both
+actively and increasingly harmed in every regime, T500 slightly more
+severely (up to -29.2% Clear) than Q850 (up to -19.3% Clear). Global vs
+local consistency: consistently harmful across regimes for two of three
+fields — a rare case where "consistency" itself is the negative finding.
+
+GRAPHCAST: best — large short-term (Adjustment-Phase) gains across every
+field and regime. Weakest — the Mature-Phase collapse documented in Section
+1.2, the clearest and most consistently reproduced failure mode for this
+model across this entire four-part study. Global vs local consistency:
+the model's regime organisation looks broadly sensible (no equatorial-style
+sign flips here, unlike the lats_FINAL dataset) but its TEMPORAL consistency
+is the weakest of the four models.
+
+
+5. ARCHITECTURE AND TRAINING INTERPRETATION
+--------------------------------------------------------------------------------
+This section reinforces, rather than repeats, the architectural discussion
+in the companion lats_FINAL, tuv_final, and tcc reports.
+
+Aurora's foundation-model pretraining across heterogeneous, multi-source
+geophysical data, combined with explicit rollout-aware fine-tuning (Bodnar
+et al., 2024/2025), is again the most natural explanation for why its
+wind-to-mass pathway is essentially saturated and regime-independent here:
+broad training exposure plausibly teaches the model a single, robust,
+generally-applicable form of the geostrophic/thermal-wind relation rather
+than a regime-specific one.
+
+FCN's global spectral (AFNO) representation (Pathak et al., 2022) explains
+why its skill specifically tracks the most actively baroclinic regime
+(Mixed) — a global low-order spectral operator is naturally well suited to
+representing the large-scale, wave-like structures associated with active
+frontal/baroclinic systems, and somewhat less suited to the comparatively
+featureless Clear regime or the small-scale, latent-heat-dominated structure
+of the Opaque regime.
+
+Prithvi-WxC's masked-reconstruction-plus-forecasting pretraining on a
+patch-embedded 2D Vision Transformer (Schmude et al., 2024) is, by this
+point in the report series, a well-supported explanation for the model's
+specific and repeated failure to couple wind information into either the
+mass field (Z500, Section 1.3) or the moisture field (Q850, Section 1.2):
+a reconstruction objective built around co-located, same-instant variable
+relationships provides little training signal for the spatially-extended,
+balance-mediated relationship between a forced wind field and the rest of
+the atmospheric state, so when wind actually IS the forced/inserted
+variable, the model has comparatively little learned machinery to exploit
+it.
+
+GraphCast's icosahedral multi-mesh message-passing architecture (Lam et al.,
+2023) is consistent with the now-repeated Adjustment-to-Mature collapse
+pattern: a graph-based encoder/processor can incorporate the inserted
+information effectively into a single forward pass (producing a good
+Adjustment-Phase state) without that information being durably re-derived by
+the model's own autoregressive evolution, so the benefit fades as the
+forecast continues to roll out under the model's own, less-corrected,
+dynamics.
+
+
+6. FINAL SCIENTIFIC CONCLUSIONS
+--------------------------------------------------------------------------------
+(1) Physical understanding revealed: wind insertion is, for Aurora and FCN,
+a near-universally reliable, regime-spanning constraint on the mass and
+thermal fields — direct evidence both models have learned a broadly
+applicable form of geostrophic/thermal-wind balance. For Prithvi, the same
+experiment reveals the opposite: wind information is largely inert for the
+mass field and actively counter-productive for BOTH temperature and
+moisture, across every cloud regime tested.
+
+(2) Most dynamically consistent model: Aurora — the flattest, strongest,
+most regime-independent response of the four.
+
+(3) Model benefiting most from insertion: FCN, in the sense that its
+response, while regime-dependent, is uniformly positive (no field goes
+negative anywhere in this dataset) — a smaller peak benefit than Aurora's
+but a more uniformly safe one across the board.
+
+(4) Most important variable: wind, for both Aurora and FCN, in correcting
+temperature and geopotential simultaneously — confirming, from this new
+flow-regime axis, the central wind-to-mass pathway already established in
+the companion reports.
+
+(5) Where the models fail physically: Prithvi's wind field is dynamically
+disconnected from its mass field and actively harmful to its thermal and
+moisture fields, in every cloud regime — the most unambiguous demonstration
+of this specific weak point in the entire four-report series; GraphCast's
+gains do not survive into the Mature Phase.
+
+(6) Main takeaways for a paper/report: (a) cloud-regime-resolved insertion
+experiments can isolate a model's weakest cross-variable pathway with more
+precision than a domain-mean experiment alone, because a uniformly weak or
+harmful response across every regime (as found here for Prithvi) rules out
+the possibility that the domain-mean result was being driven by one
+unusual region or regime; (b) moisture is the field most sensitive to cloud
+regime for every model, consistent with the broader NWP literature treating
+cloud state as a first-order conditioning variable for forecast error; and
+(c) GraphCast's Adjustment-to-Mature collapse, now observed in three
+independent analyses in this series, should be treated as a structural
+property of the model's response to insertion, worth investigating
+architecturally (e.g. whether its message-passing processor under-weights
+self-consistency across rollout steps) rather than as noise.
+
+
+REFERENCES
+--------------------------------------------------------------------------------
+Charney, J.G. (1947/1948), foundational quasi-geostrophic theory.
+Arnold, C.P., and C.H. Dey (1986), "Observing-Systems Simulation Experiments:
+  Past, Present, and Future," Bull. Amer. Meteor. Soc.
+Masutani, M., et al. (2010), "Observing system simulation experiments at the
+  National Centers for Environmental Prediction," J. Geophys. Res., 115.
+Pathak, J., et al. (2022), "FourCastNet: A Global Data-driven High-resolution
+  Weather Model using Adaptive Fourier Neural Operators," arXiv:2202.11214.
+Bodnar, C., et al. (2024/2025), "A Foundation Model for the Earth System,"
+  Nature; arXiv:2405.13063.
+Schmude, J., et al. (2024), "Prithvi WxC: Foundation Model for Weather and
+  Climate," arXiv:2409.13598.
+Lam, R., et al. (2023), "GraphCast: Learning skillful medium-range global
+  weather forecasting," Science; arXiv:2212.12794.
+Charlton-Perez, A.J., et al. (2024), "Do AI models produce better weather
+  forecasts than physics-based models? A quantitative evaluation case study
+  of Storm Ciaran," npj Climate and Atmospheric Science; arXiv:2312.02658.
+"Correction method by introducing cloud cover forecast factor in model
+  temperature forecast," Frontiers in Earth Science (2023).
+See also companion analyses: common/lats_FINAL/PHYSICAL_ANALYSIS.txt,
+  common/tuv_final/PHYSICAL_ANALYSIS.txt, common/tcc/PHYSICAL_ANALYSIS.txt,
+  and common/terrain2/PHYSICAL_ANALYSIS.txt.
+================================================================================

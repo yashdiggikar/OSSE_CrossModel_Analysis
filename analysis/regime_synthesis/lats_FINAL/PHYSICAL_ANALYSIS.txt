@@ -1,0 +1,573 @@
+================================================================================
+PHYSICAL INTERPRETATION OF LATITUDE-BAND / LATITUDE-SLICE INSERTION EXPERIMENTS
+Cross-variable RMSE response to single-variable OSSE-style insertion
+Models: Aurora, FourCastNet (FCN), GraphCast-S, Prithvi-WxC
+Source plots: Figure_latband_*_crossvar(.png/_mature.png), Figure_latslice_*_crossvar(.png/_mature.png)
+Prepared from the underlying per-model, per-region CSVs in:
+  Aurora_Pred_Files/lats(+lat_bands)/values, FourCastNet/lats(+lat_bands)/values,
+  gc_pred_files/lats(+lat_bands)/values, prithvi_new/lats(+lat_bands)/values
+================================================================================
+
+0. EXPERIMENT DESIGN AND A CRITICAL METHODOLOGICAL CAVEAT
+--------------------------------------------------------------------------------
+Each experiment replaces (“inserts”) one dynamical field with its ERA5 truth
+value at every step and asks how the RMSE of the *other*, non-inserted fields
+responds, relative to a free-running Control. Three single-variable insertions
+are compared:
+
+  T-Ins     : temperature inserted   -> cross-variable response measured in U500,V500,Z500
+  Wind-Ins  : U+V inserted           -> cross-variable response measured in T500,Z500
+  Geo-Ins   : Z (geopotential) inserted -> cross-variable response measured in T500,U500,V500
+
+Two complementary spatial decompositions are used:
+  "latband"  – zonal bands that POOL both hemispheres symmetrically:
+               Tropics (|lat|<30), Midlatitudes (30-60, both hemispheres averaged
+               together), Polar (60-90, both hemispheres averaged together).
+  "latslice" – four fixed Northern-Hemisphere reference latitudes (2N, 14N, 40N,
+               60N), each a +/-5 deg band, representing the ITCZ edge, the
+               subtropical/trade-wind belt, the core of the midlatitude jet and
+               storm track, and the sub-polar/Arctic boundary, respectively.
+
+IMPORTANT CAVEAT — read before comparing "Adjustment Phase" numbers across
+models. In the underlying tables, FourCastNet and Prithvi register *exactly*
+0.0% (or numerically negligible, +-0.1%) improvement for every variable and
+every region during the Adjustment Phase (days 0-30), in every one of the
+three experiments. This is not a physical result: it indicates that for these
+two models the insertion was implemented as a restart-type perturbation that
+only takes effect at/after day 30, so the "Adjustment Phase" segment is
+literally identical to Control for them by construction. Aurora and
+GraphCast-S, in contrast, show real, non-trivial (and sometimes negative)
+Adjustment-Phase responses, consistent with insertion being applied
+continuously from the initial condition for those two models. Consequently,
+genuine model-to-model comparison in this dataset is only meaningful for the
+MATURE PHASE (days 30-60), where all four models have been exposed to the
+inserted field for an equal, non-trivial duration. All physical conclusions
+below are therefore drawn primarily from the Mature-Phase numbers; Adjustment
+Phase is discussed only for Aurora and GraphCast-S, where it is meaningful.
+
+A second scope caveat: because "latband" pools the Northern and Southern
+Hemisphere into one number per band, this dataset cannot, by construction,
+resolve a true Northern-vs-Southern-Hemisphere asymmetry. What it *can*
+resolve, and what the discussion below focuses on, is the equator-to-pole
+gradient (tropics -> midlatitudes -> polar cap, and the four-point meridional
+cross-section at 2N/14N/40N/60N), which is the dynamically dominant axis of
+variability in the atmosphere (Rossby number and the Coriolis parameter f both
+vary monotonically with latitude, not with hemisphere).
+
+
+1. PHYSICAL INTERPRETATION OF MODEL BEHAVIOUR
+--------------------------------------------------------------------------------
+1.1 The central asymmetry: wind constrains mass more effectively than mass
+    constrains wind.
+
+Across every model that shows a coherent signal (Aurora, FCN, and to a lesser
+extent GraphCast-S), inserting the wind field (Wind-Ins) produces a *larger and
+more spatially coherent* correction of T500/Z500 than inserting temperature
+(T-Ins) produces in U500/V500. Mature-phase band-mean numbers illustrate this
+directly:
+
+  Wind-Ins -> Z500   Aurora 64.9-90.0%,  FCN 71.4-83.2%   (large, coherent)
+  T-Ins    -> U500   Aurora 28.7-45.5%,  FCN 15.9-22.6%   (smaller)
+  T-Ins    -> V500   Aurora 18.0-27.8%,  FCN 17.7-22.5%   (smaller)
+
+This is exactly what quasi-geostrophic theory predicts. The geostrophic
+relation, f*v = (1/rho) dp/dx, lets you read the mass/pressure field's
+gradient directly off the wind field at a point — it is a *local, algebraic*
+diagnostic relation. Recovering wind from a mass-field anomaly is the inverse
+operation: it requires differentiating the (noisy, sampled) mass field and,
+in general, solving a global elliptic (Poisson-type) inversion for the
+rotational wind, which is sensitive to boundary conditions and to the part of
+the flow that is *not* in geostrophic balance. Inserting one accurate
+pressure/height value tells a model much less about the surrounding wind than
+one accurate wind vector tells it about the surrounding pressure field. The
+data show that Aurora and FCN have internalised this asymmetry in a way that
+is dynamically consistent with theory; GraphCast-S reproduces it only
+partially (see 1.3); Prithvi does not show it at all because its wind fields
+barely respond to *any* insertion (see 1.4 and Section 4).
+
+1.2 Geostrophic/Rossby-number signature in the meridional structure.
+
+The latslice mature-phase numbers for Wind-Ins -> T500 show a clean,
+monotonic-like increase with latitude for the two best-behaved models:
+
+  Aurora :  2N 45.3% -> 14N 62.9% -> 40N 88.1% -> 60N 87.3%
+  FCN    :  2N 32.5% -> 14N 57.0% -> 40N 71.2% -> 60N 61.0%
+
+This is the textbook Rossby-number signature of geostrophic/thermal-wind
+balance: f = 2*Omega*sin(lat) is small near the equator, so the geostrophic
+approximation (and with it, the thermal-wind relation linking vertical wind
+shear to the horizontal temperature gradient) is formally invalid there;
+errors in the wind field are not tightly tied to errors in temperature at low
+latitude. Approaching 40-60N — the climatological core of the midlatitude jet
+and baroclinic storm tracks — f is large, thermal-wind balance is tight, and
+an accurate wind field very effectively pins down the temperature field. The
+fact that this latitude dependence emerges *purely from a perturbation
+experiment*, without it being imposed, is itself evidence that Aurora and FCN
+have learned a flow-dependent, latitude-dependent dynamical relationship
+rather than a single global statistical regression between variables.
+
+1.3 Where the “well-behaved” models break: equatorial wind insertion.
+
+GraphCast-S is the most informative failure case. Under Wind-Ins, its T500
+response at 2N in the mature phase is -50.2% (a *doubling-or-worse* of error
+relative to Control), while its 40N response is +58.9%. The same model that
+benefits enormously from wind information at the jet-stream latitudes is
+actively damaged by the same kind of information at the equator. The
+mechanistic reading is that GraphCast-S has learned an internally consistent,
+but specifically extratropical, geostrophic-style coupling between wind and
+mass fields. Forcing the equatorial wind field to its (non-geostrophically
+organised, often divergent, convectively coupled) true value injects
+information that is incompatible with the balance relationship the network
+relies on, and the network has no mechanism to safely "ignore" or
+down-weight that information the way it apparently can poleward of ~15N.
+This is a direct illustration of geostrophic-adjustment failure: a
+locally-forced perturbation that is out of balance with the rest of the
+modelled state should, in a true dynamical system, radiate away as
+inertia-gravity waves and leave the slow, balanced flow largely unaffected
+(the classical Rossby/Charney adjustment problem). A network that has not
+learned this adjustment mechanism instead lets the imbalance contaminate the
+forecast.
+
+1.4 Prithvi: strong thermodynamic/hydrostatic coupling, weak dynamical
+    (wind) coupling.
+
+Prithvi shows a strikingly consistent asymmetry across *all three*
+experiments: its Z500 and T500 fields respond well to insertion of other
+variables (Geo-Ins -> T500: 34-48% mature; T-Ins -> Z500: 59-69% mature, the
+best of any model at the pole), but its U500/V500 fields are flat-to-negative
+under every experiment (T-Ins -> U500: -2.3 to +2.8%; Geo-Ins -> U500: -2.5 to
++1.0%; Wind-Ins, where U/V is the inserted variable itself, still leaves
+T500 *negative*, i.e. -22.1% to -4.5%, across the board). Two physically
+distinct balance relations are being probed here: the hydrostatic/hypsometric
+relation that ties temperature to the vertical structure of geopotential
+(a local, vertical, single-column relation), and the geostrophic/gradient-wind
+relation that ties the wind to the horizontal structure of the mass field
+(a non-local, horizontal relation involving Coriolis and pressure-gradient
+forces). The data indicate Prithvi has learned the former far better than the
+latter. Even when wind is *directly inserted* as the controlled experimental
+variable, Prithvi's temperature field gets worse, not better — implying the
+insertion creates a state that is internally inconsistent with whatever
+implicit relationship Prithvi's decoder uses to update temperature, and the
+model effectively propagates an imbalance, rather than damping it via
+something resembling geostrophic adjustment.
+
+1.5 Statistical correlation vs flow-dependent dynamics — a summary verdict.
+
+The fact that improvement magnitudes change systematically with latitude
+band, and do so in a way that tracks known Rossby-number/baroclinicity
+scaling (1.2), is strong evidence that Aurora and FCN are not merely encoding
+a fixed climatological covariance between variables; the response is
+flow/region dependent in a dynamically sensible way. GraphCast-S shows the
+same large-scale tendency but with a localized, equatorial pathology (1.3),
+indicating a dynamically-aware but imperfectly generalised representation.
+Prithvi's selective failure — good thermodynamic coupling, poor dynamical
+(wind) coupling, in every experiment — is most consistent with a model that
+has learned strong *single-column / vertical* statistical-physical structure
+(temperature-geopotential covariance) but a much weaker *horizontal,
+rotational* dynamical constraint. None of the four models show evidence of
+having learned a fully closed dynamical balance (in which inserting any one
+of T, Z, or (U,V) would re-balance all the others to a comparable degree);
+each has a distinct, identifiable blind spot.
+
+
+2. REGIONAL AND SPATIAL ANALYSIS
+--------------------------------------------------------------------------------
+2.1 Tropics vs midlatitudes vs polar cap (latband).
+
+ - T-Ins -> Z500 (mature): Aurora is high and fairly flat (53.8-62.3% across
+   all three bands) — consistent with hydrostatic T->Z coupling being a local
+   vertical relation with little latitude dependence. GraphCast-S, by
+   contrast, is strongly tropics-favoured (40.0% Tropics vs -1.0%
+   Midlatitudes vs +2.1% Polar) — i.e. for GraphCast-S the T->Z pathway is
+   only working where deep convection and moist thermodynamics dominate the
+   tropical mass field, and is essentially neutral-to-broken in the
+   extratropics, the opposite regional dependence from its Wind-Ins result
+   (1.3). The two experiments together paint GraphCast-S as a model whose
+   tropical and extratropical dynamics are represented by largely separate,
+   imperfectly reconciled internal mechanisms.
+
+ - Wind-Ins -> T500/Z500 (mature): every model that responds at all
+   (Aurora, FCN, GraphCast-S) improves more in the Midlatitude/Polar bands
+   than in the Tropics (e.g. FCN: T500 57.0% Tropics -> 70.1% Midlat -> 59.9%
+   Polar; Aurora: 54.6% -> 84.3% -> 85.9%). This is the band-pooled version of
+   the meridional jet-core signature already discussed in 1.2.
+
+ - Geo-Ins is the most spatially *uniform* and best-behaved experiment for
+   every model, including GraphCast-S (T500: 65.5%, 68.9%, 61.9% across
+   Tropics/Midlat/Polar — no sign flips anywhere). Physically, geopotential
+   height is the field most directly tied to *both* the thermal structure
+   (hydrostatically) and the wind field (geostrophically) at essentially all
+   latitudes outside the deep tropics, and it remains a meaningful,
+   well-defined quantity even near the equator (unlike "the equatorial
+   geostrophic wind", which is ill-defined as f -> 0). Z is, in effect, the
+   closest thing in this dataset to a master/streamfunction-like variable,
+   and inserting it gives the most dynamically-consistent, regionally
+   uniform correction of any single-variable experiment.
+
+2.2 Meridional cross-section (latslice: 2N / 14N / 40N / 60N).
+
+The four reference latitudes sample, in order, the ITCZ edge, the subtropical
+trade-wind/subsidence belt, the core of the midlatitude jet/storm track, and
+the sub-polar/Arctic boundary. Read together with the band results, the
+slice data confirm that the *transition* in model skill is centred near
+20-30N — i.e. near the climatological edge of the Hadley cell / subtropical
+jet — rather than being smooth across the whole meridional domain. GraphCast-S
+in particular shows a near-discontinuous change in sign between 14N and 40N
+in both the Wind-Ins and T-Ins slice results, placing its dynamical "blind
+spot" specifically in the tropical/subtropical transition zone rather than
+diffusely across low latitudes.
+
+2.3 Land, ocean, coastal and complex-terrain dependence.
+
+The latband/latslice decomposition used in these specific figures is purely
+zonal (latitude-only) and does not stratify by land/ocean/coastline, so this
+particular dataset cannot directly support land-vs-ocean or terrain-complexity
+claims; that distinction is addressed instead in the companion analysis of
+the TUV spatial synergy maps (see common/tuv_final/PHYSICAL_ANALYSIS.txt),
+which does carry full 2-D geographic information and shows, e.g., a clear
+land/desert vs ocean split in Aurora's response and a midlatitude-storm-track
+vs tropical-ocean split in FCN's response. The latitude-band results in this
+directory should be read as the *zonally-averaged summary* of that more
+detailed spatial picture: the band/slice latitude dependence documented above
+is consistent with, and is partly explained by, the regional patterns
+detailed in the TUV synergy maps.
+
+
+3. EXPERIMENT-LEVEL INTERPRETATION (Control vs T-Ins vs Wind-Ins vs Geo-Ins)
+--------------------------------------------------------------------------------
+3.1 What each insertion reveals about dependence structure.
+
+ - T-Ins isolates how much of a model's error in the *rotational/wind* and
+   *mass* fields is attributable to temperature/thermodynamic error. The
+   weak U/V response (1.1) shows that, for every model, temperature error is
+   NOT the dominant source of wind-field error — wind error has its own,
+   largely independent error growth pathway (most likely the directly
+   modelled momentum/vorticity dynamics).
+
+ - Wind-Ins isolates how much of the mass/thermal-field error is attributable
+   to wind error, and the answer (for Aurora, FCN, partially GraphCast-S) is
+   "a great deal, especially at jet-stream latitudes" — consistent with the
+   physical fact that, outside the tropics, synoptic-scale mass-field
+   evolution is very largely a *consequence* of the rotational wind field
+   (vorticity advection, baroclinic development) rather than an independent
+   error source.
+
+ - Geo-Ins isolates the centrality of the geopotential/streamfunction field
+   itself. That it produces the most uniform, largest, and most consistently
+   positive cross-variable correction of the three experiments, for three of
+   the four models, supports the classical view (going back to Charney's
+   quasi-geostrophic formulation, in which the geopotential/streamfunction is
+   the single prognostic field from which both temperature, via the
+   hypsometric relation, and wind, via the geostrophic relation, can be
+   diagnosed) that Z is the most informationally "central" of the variables
+   examined here for these models, much as it is in the real atmosphere's
+   quasi-geostrophic dynamics.
+
+3.2 Does combined T+U+V insertion behave more consistently than single-
+    variable insertion?
+
+This specific figure set only contains single-variable insertions (T, Wind,
+or Z alone); the joint T+U+V ("TUV") insertion is analysed quantitatively in
+the companion TUV report, where it is shown that combined insertion is *not*
+uniformly better than the best single-variable insertion — for Aurora's
+Z500, combining T with already-sufficient wind information measurably
+*hurts* relative to wind alone (negative synergy), whereas for FCN and
+Prithvi the two pieces of information are complementary (positive synergy).
+The single-variable results here explain why: Aurora's wind-only correction
+of Z500 is already very large (87-90% in the mature phase, Section 1.1),
+leaving little room for temperature to add independent value and some risk
+that an imperfect temperature insertion reintroduces a small inconsistency.
+FCN's and Prithvi's single-variable corrections are smaller and more
+asymmetric (FCN: 71-83% from wind, weaker from temperature in the band
+results; Prithvi: strong from temperature, weak from wind), so the two
+sources of information are still largely independent/complementary for them.
+
+3.3 Cases where one field improves while another is harmed.
+
+Wind-Ins is the clearest example: for GraphCast-S, inserting U/V improves
+Z500 in the midlatitudes/poles (up to +69.9% at the slice level) while
+simultaneously *degrading* T500/Z500 at the equator (down to -50.2%). The
+likely dynamical reason is discussed in 1.3 — the equatorial wind field
+carries information (divergence, convective coupling) that is not organised
+by the same balance the model uses poleward, so enforcing it there propagates
+error rather than correcting it. A second example is Prithvi under Wind-Ins,
+where the directly-inserted variable (wind) is, by construction, perfect, yet
+the diagnostically-coupled variable (temperature) gets *worse* nearly
+everywhere — direct evidence that errors can propagate from an artificially
+"corrected" variable into an uncorrected one when the model's internal
+cross-variable consistency is weak.
+
+3.4 Error propagation from inserted to non-inserted variables.
+
+The asymmetric and sometimes-negative responses documented throughout
+Sections 1-3 show that error propagation in these networks is not simply
+"more truth in -> less error out" for every field. A perfectly-specified
+input variable can still degrade other fields if the network's internal
+representation does not enforce the corresponding balance relation; in such
+cases the insertion is effectively an out-of-distribution forcing rather than
+a beneficial constraint, and the network has no mechanism analogous to
+geostrophic/inertia-gravity-wave adjustment to dissipate the resulting
+imbalance.
+
+
+4. MODEL-BY-MODEL COMPARISON
+--------------------------------------------------------------------------------
+AURORA
+  Best variables/regions: Z500 and T500 respond very strongly to almost any
+  insertion, and the response *grows* with latitude in a way that matches
+  thermal-wind/geostrophic theory (Section 1.2). Aurora is the only model
+  that shows a clear, real Adjustment-Phase response (i.e. insertion-from-IC
+  protocol), letting it demonstrate dynamically sensible behaviour even
+  before day 30.
+  Weaker regions: U/V recovery from T-Ins alone is comparatively modest
+  (Aurora's smallest cross-variable response of the three experiments),
+  consistent with the general "wind->mass easy, mass->wind hard" asymmetry
+  (1.1), though Aurora still shows the best wind recovery of the four models.
+  Local vs global consistency: Aurora shows the most *globally* coherent,
+  latitude-organised response of the four models — its improvements track
+  large-scale dynamical regimes (Rossby number, jet latitude) rather than
+  showing the regionally fragmented behaviour seen in GraphCast-S or Prithvi.
+  Lead-time behaviour: Aurora's mature-phase responses are uniformly larger
+  than its adjustment-phase responses, indicating that the benefit of
+  insertion compounds over the forecast window rather than being a one-time
+  initial correction — i.e. an accurate constraint early in the rollout
+  continues to pay off dynamically as the forecast evolves.
+
+FOURCASTNET (FCN)
+  Best variables/regions: a consistent, monotonic-ish increase in skill
+  from Tropics to Midlatitudes under Wind-Ins (Section 2.1), and the largest,
+  most uniform cross-variable gains of any model under Geo-Ins (T500: 56-83%
+  across all bands and slices). FCN never produces a *negative* mature-phase
+  cross-variable response anywhere in this dataset — its weakest results are
+  small-positive, not pathological.
+  Weaker regions: FCN's Adjustment-Phase response is, by the protocol
+  described in Section 0, identically zero, so nothing can be said about its
+  early-forecast dynamical behaviour from this dataset; only its mature-phase
+  (already-equilibrated) behaviour is assessed here.
+  Local vs global consistency: FCN's smooth, monotonic latitude dependence
+  and complete absence of sign flips is the signature of a *globally*
+  smooth/consistent response, plausibly related to its global, spectral
+  (Fourier-domain) internal representation (see Section 5).
+
+GRAPHCAST-S
+  Best variables/regions: extratropical T500/Z500 response to Wind-Ins is
+  excellent (up to 93.0% Z500 at 40N, mature phase) — among the strongest
+  results of any model in this entire dataset.
+  Weaker regions: a severe, repeated equatorial pathology — large *negative*
+  responses at 2N/14N under Wind-Ins (T500: -50.2% at 2N) and at high
+  latitude under T-Ins (Z500: -7.5% at 40N, -12.1% at 60N). GraphCast-S is
+  the only model in this dataset whose cross-variable response changes sign
+  with latitude within a single experiment, in both directions, depending on
+  which experiment.
+  Local vs global consistency: GraphCast-S looks like two different models
+  spliced together along a latitude axis — strongly globally consistent in
+  the extratropics, locally inconsistent/noisy near the equator. This is the
+  weakest *generalisation* of the four models, even though its
+  best-case extratropical skill rivals Aurora's.
+
+PRITHVI-WxC
+  Best variables/regions: T500 and Z500 respond very well to insertion of
+  any *other* thermodynamic/mass variable (T-Ins -> Z500 reaches the highest
+  mature-phase Polar-band value of any model, 68.9%; Geo-Ins -> T500 is
+  positive at every latitude, 34-50%).
+  Weaker regions: U500/V500 are essentially unresponsive or mildly *negative*
+  under every experiment, including when wind is the variable directly
+  inserted (Wind-Ins -> T500 is negative everywhere, -22.1% to -4.5%). This
+  is the single most consistent and most physically significant weak point
+  identified anywhere in this report: Prithvi shows a persistent inability to
+  couple its momentum (wind) representation to its mass/thermodynamic fields
+  in either direction.
+  Local vs global consistency: Prithvi's deficiency is consistent across
+  experiments (suggesting a structural, architecture/training-level cause —
+  see Section 5) rather than regionally patchy the way GraphCast-S's is.
+
+
+5. ARCHITECTURE AND TRAINING INTERPRETATION (FCN, Aurora, Prithvi)
+--------------------------------------------------------------------------------
+FourCastNet (Pathak et al., 2022, arXiv:2202.11214) is built on Adaptive
+Fourier Neural Operators (AFNO): each layer performs a global Fourier
+transform, a learned filtering of the (low-order) spectral coefficients, and
+an inverse transform. Every spatial point therefore has, in principle, a
+global receptive field from the very first layer, and the representation is
+explicitly organised by spatial wavenumber. This is a plausible structural
+explanation for two observations above: (i) FCN's complete absence of sign
+flips and its smooth, monotonic latitude dependence (a global, low-order
+spectral operator cannot easily represent a sharp, localized inconsistency at
+one latitude band while behaving well elsewhere — its inductive bias favours
+broad, large-scale consistency over local "patchwork" behaviour); and (ii) in
+the companion TUV analysis, FCN's only outright *failure* case (Q850
+degrading under T-only insertion) again involves a sharp, highly non-linear,
+small-scale field (moisture, governed by the exponential Clausius-Clapeyron
+relation) — exactly the kind of field a low-order spectral truncation would
+be expected to represent and correct less precisely than a smooth, large-scale
+field like Z500.
+
+Aurora (Bodnar et al., 2024/2025, Nature; arXiv:2405.13063) uses a 3D Swin
+Transformer processor with 3D-Perceiver encoders/decoders, pretrained as a
+genuine foundation model across multiple heterogeneous geophysical datasets
+(reanalysis, forecasts, climate projections) and then fine-tuned in two
+stages, including a rollout/LoRA fine-tuning stage explicitly aimed at
+multi-step, long-lead-time forecast stability. Swin attention is windowed but
+hierarchically merged across scales, giving Aurora both a degree of locality
+(useful for representing latitude-dependent regimes without forcing one global
+rule on the whole sphere) and, through window-shifting/hierarchy, an effective
+large-scale receptive field. This architectural combination is a plausible
+explanation for why Aurora is the model that most cleanly reproduces the
+*latitude-dependent* (Rossby-number-like) structure of geostrophic/thermal-
+wind balance documented in Section 1.2 — its inductive bias is flexible
+enough to represent different effective dynamical regimes at different
+latitudes, unlike FCN's globally uniform spectral operator, while its
+multi-stage, multi-dataset, rollout-aware fine-tuning plausibly explains why
+it is the model that benefits most, and earliest (non-zero Adjustment Phase),
+from accurate constraints.
+
+Prithvi-WxC (Schmude et al., 2024, arXiv:2409.13598) is a scalable 2D Vision
+Transformer, pretrained on MERRA-2 with a *combination* of masked
+reconstruction and forecasting objectives, and built around patch embeddings
+with local+global attention. Two architectural/training features map
+directly onto the model's observed weak point: (1) the masked-autoencoder-style
+reconstruction objective trains the network to fill in *missing values of a
+single field from its own spatial neighbourhood and from co-located other
+fields at the same instant*, which is naturally well-suited to learning local,
+instantaneous, single-column relations such as the hydrostatic/hypsometric
+T-Z coupling, but does not explicitly require the network to learn the
+*non-local, rotational* mass-wind relation that real geostrophic balance
+demands; and (2) patch embeddings with a finite patch size impose a
+block/tile structure on the internal representation, which is consistent with
+the visibly blocky, patch-aligned spatial artefacts seen in Prithvi's spatial
+synergy maps (companion TUV report) — a known signature of patch-based ViT
+architectures applied to physically smooth fields. Together these are a
+coherent explanation for why Prithvi learns thermodynamic/hydrostatic
+consistency well but momentum/geostrophic consistency poorly: the training
+objective and patch-local attention structure simply provide much weaker
+pressure to learn the latter.
+
+Local vs global attention, more generally: windowed/local attention
+(Prithvi's patches, Aurora's Swin windows) is well suited to representing
+regionally-varying dynamical regimes (e.g. the tropics-to-jet transition) but,
+without sufficiently effective long-range mixing, risks under-representing
+genuinely global phenomena — planetary waves, teleconnections, and the
+elliptic, whole-sphere character of the wind-from-mass inversion discussed in
+1.1. Global spectral mixing (FCN's AFNO) is the opposite trade-off: excellent
+at enforcing large-scale, planetary-wave-consistent behaviour, but with a
+coarser effective resolution of localized regime transitions and small-scale,
+sharp fields. GraphCast (Lam et al., 2023, Science; not analysed
+architecturally in depth here per the scope of this study, but present in
+this dataset as GraphCast-S) sits structurally between these extremes — a
+multi-mesh graph neural network with explicit multi-scale message passing on
+an icosahedral mesh — and its observed behaviour (excellent multi-scale,
+extratropical consistency; a sharp equatorial failure mode) is broadly
+consistent with a mesh/message-passing architecture that resolves
+extratropical baroclinic scales well but is more exposed to the
+small-Rossby-number, convectively organised tropical regime, where its
+graph-based long-range mixing may not adequately separate balanced
+(rotational) from unbalanced (divergent) information.
+
+In summary, none of the three models examined in architectural depth appear
+to learn the underlying balance physics *explicitly* (none have an explicit
+geostrophic, hydrostatic, or thermal-wind constraint built into their loss or
+architecture in this dataset's experiments); all three show behaviour that is
+*statistically learned but with genuine, regionally-organised dynamical
+structure superimposed* — i.e. implicit, partial physical learning, with the
+specific balance relation that is well captured differing systematically by
+architecture and training objective. This view is independently corroborated
+in the published literature: Charlton-Perez et al. (2024, npj Climate and
+Atmospheric Science) document literal "honeycomb" non-physical artefacts in
+the *geostrophic wind* diagnosed from several data-driven models during Storm
+Ciarán, growing with lead time, and a 2025 four-component "Physical
+Consistency Score" framework (covering geostrophic balance, non-divergence,
+thermal-wind balance, and hydrostatic consistency) has been proposed
+specifically because standard RMSE metrics do not reveal this kind of
+selective, balance-relation-specific failure — exactly the kind of failure
+this insertion-experiment dataset has independently uncovered for Prithvi's
+wind field and GraphCast-S's equatorial response.
+
+
+6. FINAL SCIENTIFIC CONCLUSIONS
+--------------------------------------------------------------------------------
+(1) What do these experiments reveal about the physical understanding of each
+model? All four models show evidence of *some* learned dynamical structure —
+none behave as if cross-variable relationships were absent — but each has a
+distinct, reproducible blind spot: GraphCast-S at the equator/subtropical
+transition; Prithvi in the wind/momentum field specifically; FCN in
+sharp/small-scale, non-spectrally-smooth fields; Aurora shows the fewest
+blind spots in this dataset, but even Aurora's gains saturate or mildly
+reverse when redundant information is added (see companion TUV report,
+Section 3.2 here).
+
+(2) Which model appears most dynamically consistent? Aurora, by the criteria
+available in this dataset: the largest, most latitude-coherent, most
+theory-consistent (Rossby-number-scaled) response, the fewest sign flips, and
+the only model exhibiting a real (non-zero) Adjustment-Phase response,
+indicating its dynamical sensitivity operates from the very start of the
+forecast rather than only after long equilibration.
+
+(3) Which model benefits most from insertion? In relative terms, Prithvi
+shows the largest *relative* jump in skill for the variables it is capable of
+correcting (T500/Z500), because its uncorrected baseline for those fields is
+weaker to begin with; Aurora shows the largest *absolute* and most *broadly
+distributed* benefit across variables and regions.
+
+(4) Which variables seem most important for correcting forecast evolution?
+Wind (U,V) is the single most informative insertion for correcting the
+mass/thermal field in the extratropics (Section 1.1-1.2); geopotential height
+is the most informative and most uniformly beneficial insertion across all
+latitudes and all models (Section 2.1, 3.1), consistent with its role as a
+near-streamfunction, dynamically central variable in quasi-geostrophic theory.
+Temperature alone is the least effective single-variable insertion for
+correcting the rotational wind field, for every model.
+
+(5) Where do the models fail physically? At the equator/low-Rossby-number
+regime (GraphCast-S, sharply); in the rotational-wind <-> mass-field coupling
+specifically (Prithvi, persistently, regardless of which variable is
+inserted); and, more subtly, in redundant-information regimes where a second,
+already-largely-redundant accurate constraint can be mildly destabilising
+rather than neutral (Aurora's Z500 under combined insertion, detailed in the
+TUV companion report).
+
+(6) Main takeaways for a paper/report: (a) single-variable OSSE-style
+insertion experiments are an effective, inexpensive diagnostic for exposing
+*which* balance relation (hydrostatic, geostrophic/thermal-wind, or neither)
+an AI weather model has implicitly learned, without needing to instrument the
+model internally; (b) the diagnostic results are reproducible across two
+independent latitude decompositions (band and slice) and are physically
+interpretable in terms of classical dynamical meteorology (Charney's
+quasi-geostrophic theory, the Rossby-number scaling of geostrophic balance,
+and the classical geostrophic/inertia-gravity-wave adjustment problem); (c)
+architecture and training objective leave a clear, identifiable fingerprint
+on *which* balance relation is well learned (global spectral operators ->
+smooth, large-scale consistency; foundation-model multi-scale attention with
+rollout fine-tuning -> the most latitude-coherent geostrophic-like response;
+masked-reconstruction-pretrained patch-ViT -> strong local/vertical
+thermodynamic consistency but weak rotational/wind consistency); and (d) this
+is fully consistent with, and adds an OSSE-style, cross-variable causal
+dimension to, the wider literature documenting that current data-driven
+weather models satisfy classical balance relations only partially and
+unevenly (Charlton-Perez et al. 2024; FastNet, 2025; the four-component
+Physical Consistency Score literature).
+
+
+REFERENCES
+--------------------------------------------------------------------------------
+Charney, J.G. (1947/1948), foundational work on quasi-geostrophic theory and
+  the dynamics of long baroclinic waves; see also the historical account in
+  "The Emergence of Quasi-Geostrophic Theory" (Springer) and Charney's
+  biographical material (Wikipedia: Jule Gregory Charney).
+Arnold, C.P., and C.H. Dey (1986), "Observing-Systems Simulation Experiments:
+  Past, Present, and Future," Bull. Amer. Meteor. Soc.
+Masutani, M., et al. (2010), "Observing system simulation experiments at the
+  National Centers for Environmental Prediction," J. Geophys. Res., 115.
+Pathak, J., et al. (2022), "FourCastNet: A Global Data-driven High-resolution
+  Weather Model using Adaptive Fourier Neural Operators," arXiv:2202.11214.
+Bodnar, C., et al. (2024/2025), "A Foundation Model for the Earth System,"
+  Nature; arXiv:2405.13063.
+Schmude, J., et al. (2024), "Prithvi WxC: Foundation Model for Weather and
+  Climate," arXiv:2409.13598.
+Lam, R., et al. (2023), "GraphCast: Learning skillful medium-range global
+  weather forecasting," Science; arXiv:2212.12794.
+Charlton-Perez, A.J., et al. (2024), "Do AI models produce better weather
+  forecasts than physics-based models? A quantitative evaluation case study
+  of Storm Ciaran," npj Climate and Atmospheric Science; arXiv:2312.02658.
+FastNet (2025), "Improving the physical consistency of machine-learning
+  weather prediction models through loss function design," arXiv:2509.17601.
+================================================================================
